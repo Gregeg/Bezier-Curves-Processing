@@ -1,4 +1,19 @@
-r to flip start and end, used for linking splines
-a to add splines to points list
-s to save points list
-space to switch mouse mode
+click to create points
+	-first two points sets the endpoints of the curve
+	-next points set control points
+
+editing points
+	-drag points around to edit their location
+	-pressing "DELETE" key will delete point closest to the mouse pointer
+
+adding new curves
+	-press "n" to add curve in front, and click to set second curve endpoint
+	-press "b" to add curve in back,  and click to set second curve endpoint
+	-next points set control points
+	
+navigating curves
+	-press "n" to go to next curve
+	-press "b" to go to previous curve
+	
+exporting path
+	-TODO
