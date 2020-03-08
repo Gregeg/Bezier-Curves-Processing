@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
+PImage bg;
 Vector2D mousePrev, mouseLoop;
 int mouseInd, pointInd;
 boolean saveBox = false;
@@ -12,14 +13,15 @@ String typing = "";
 long startTime;
 boolean savedDataBox = false;
 void setup(){
+  bg = loadImage("frcFieldCropped.png");
+  size(1200, 700);
+  frameRate(60);
   font = createFont("Arial", 16);
   println(dataPath(""));
   startTime = System.currentTimeMillis();
   pointInd = 0;
   mouseLoop = mouse();
   mouseInd = -1;
-  size(1200, 700);
-  frameRate(60);
   speed = 1000;
   File greg = new File(dataPath("") + "/bezierSave.greg");
   if(greg.exists())
@@ -28,7 +30,8 @@ void setup(){
 void draw(){
   Vector2D mouse = mouse();
   long curTime = System.currentTimeMillis();
-  background(204);
+  //background(204);
+  image(bg, 0, 0);
   if(allPoints.size() > 0){
     BezierPoint[] points = allPoints.get(pointInd);
     for(int i = 0; i < allPoints.size(); i++){
@@ -157,6 +160,10 @@ void draw(){
               lowInd = i;
             }
           }
+          if(lowInd == 1)
+            adjustControlPoints(pointInd, points[2].getPos(0).add(points[1].getPos(0).scale(-1)), false, 1);
+          else if(lowInd == points.length-2)
+            adjustControlPoints(pointInd, points[points.length-3].getPos(0).add(points[points.length-2].getPos(0).scale(-1)), true, points.length-2);
           BezierPoint[] temp = new BezierPoint[points.length-1];
           int i = 0;
           boolean skipped = false;
