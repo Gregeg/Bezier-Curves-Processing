@@ -18,7 +18,7 @@ void setup(){
   pointInd = 0;
   mouseLoop = mouse();
   mouseInd = -1;
-  size(600, 500);
+  size(1200, 700);
   frameRate(60);
   speed = 1000;
   File greg = new File(dataPath("") + "/bezierSave.greg");
