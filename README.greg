@@ -6,6 +6,9 @@ editing points
 	-drag points around to edit their location
 	-pressing "DELETE" key will delete point closest to the mouse pointer
 
+editing speed
+	-hold "UP" and "DOWN arrow keys
+
 adding new curves
 	-press "n" to add curve in front, and click to set second curve endpoint
 	-press "b" to add curve in back,  and click to set second curve endpoint
@@ -15,5 +18,12 @@ navigating curves
 	-press "n" to go to next curve
 	-press "b" to go to previous curve
 	
-exporting path
-	-TODO
+exporting curves
+	-press "e" then type the number of waypoints that each curve will have
+	-press "ENTER" to export, or "ESC" to cancel export
+	-Points.java file will apear in main directory
+	-move Points.java to "src/frc/team578/robot/subsystems/swerve/motionProfiling" in robot code and overwrite the pre-existing file
+
+save simulation
+	-press s to save
+	-will automatically continue simulation auto next time program runs (save file in data folder in directory)

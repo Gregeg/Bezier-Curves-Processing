@@ -1,21 +1,35 @@
+import java.util.Scanner;
+
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 Vector2D mousePrev, mouseLoop;
 int mouseInd, pointInd;
-int t = 0;
+boolean saveBox = false;
+boolean savedBox = false;
 boolean keyPrevPressed = false;
+PFont font;
+int speed;
+String typing = "";
+long startTime;
+boolean savedDataBox = false;
 void setup(){
+  font = createFont("Arial", 16);
+  println(dataPath(""));
+  startTime = System.currentTimeMillis();
   pointInd = 0;
   mouseLoop = mouse();
   mouseInd = -1;
   size(600, 500);
   frameRate(60);
+  speed = 1000;
+  File greg = new File(dataPath("") + "/bezierSave.greg");
+  if(greg.exists())
+    readSaveData();
 }
 void draw(){
   Vector2D mouse = mouse();
-  println(pointInd);
+  long curTime = System.currentTimeMillis();
   background(204);
   if(allPoints.size() > 0){
-    println(allPoints.get(0).length);
     BezierPoint[] points = allPoints.get(pointInd);
     for(int i = 0; i < allPoints.size(); i++){
       if(allPoints.get(i).length >= 2){
@@ -26,11 +40,10 @@ void draw(){
           point((float)pos.x,(float)pos.y);
         }
         strokeWeight(10);
-        Vector2D pos = func.getPos(((double)t)/100);
+        Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
         point((float)pos.x, (float)pos.y);
       }
     }
-    t++;
     stroke(0, 200, 0);
     Vector2D prevPt = points[0].getPos(0);
     strokeWeight(1);
@@ -68,12 +81,40 @@ void draw(){
       else if(mouseInd >= points.length-2)
         adjustControlPoints(pointInd, dv, true, mouseInd);
     }
-    if(t >= 100)
-      t = 0;
   }
+  fill(255, 255, 255);
+  strokeWeight(1);
+  rect(0, 0, 175, 25);
+  fill(0, 0, 0);
+  text("Speed: " + (float)speed/1000 + " curves per sec", 10, 17);
+  
+  if(saveBox){
+    fill(255, 255, 255);
+    strokeWeight(1);
+    rect(0, 0, 300, 25);
+    fill(0, 0, 0);
+    text("Points per curve (>=100 recommended): " + typing, 10, 17);
+  }
+  if(savedBox){
+    fill(255, 255, 255);
+    strokeWeight(1);
+    rect(0, 0, 200, 25);
+    fill(0, 0, 0);
+    text("Exported! Press Esc to Close", 10, 17);
+    saveBox = false;
+  }
+  if(savedDataBox){
+    fill(255, 255, 255);
+    strokeWeight(1);
+    rect(0, 0, 200, 25);
+    fill(0, 0, 0);
+    text("Saved! Press Esc to Close", 10, 17);
+  }
+  
+  
   mouseLoop = mouse;
   if(keyPressed){
-    if(!keyPrevPressed && allPoints.size() > 0){
+    if(!keyPrevPressed && allPoints.size() > 0 && !saveBox){
       if(key == 'N' || key == 'n'){
         if(allPoints.get(pointInd).length > 2){
           pointInd++;
@@ -130,10 +171,102 @@ void draw(){
           allPoints.set(pointInd, temp);
         }
         keyPrevPressed = true;
+      }else if(key == 'e' || key == 'E'){
+        saveBox = true;
+        keyPrevPressed = true;
+      }else if(keyCode == UP){
+        speed+=10;
+        startTime = System.currentTimeMillis();
+      }else if(keyCode == DOWN){
+        speed-=10;
+        startTime = System.currentTimeMillis();
+      }else if(key == 's' || key == 'S'){
+        saveData();
+        savedDataBox = true;
       }
     }
   }else{
     keyPrevPressed = false;
+  }
+}
+void readSaveData(){
+  try{
+    Scanner sc = new Scanner(new File(dataPath("") + "/bezierSave.greg"));
+    speed = Integer.parseInt(sc.nextLine());
+    allPoints = new ArrayList<BezierPoint[]>();
+    while(sc.hasNextLine()){
+      String line = sc.nextLine();
+      int ind = 0;
+      ArrayList<Double> a = new ArrayList<Double>();
+      do{
+         ind = line.indexOf(',');
+         if(ind == -1)
+           a.add(Double.parseDouble(line));
+         else{
+           a.add(Double.parseDouble(line.substring(0, ind)));
+           line = line.substring(ind+1);
+         }
+      } while(ind != -1);
+      BezierPoint[] pts = new BezierPoint[a.size()/2];
+      for(int i = 0; i < pts.length; i++)
+        pts[i] = new BezierPoint(new Vector2D(a.get(2*i), a.get(2*i+1)));
+      allPoints.add(pts);
+    }
+    pointInd = 0;
+    sc.close();
+  }catch(Exception e){
+    System.err.println("greg file not detected");
+  }
+}
+void saveData(){
+  File file = new File(dataPath("") + "/bezierSave.greg");
+  if(file.exists())
+    file.delete();
+  PrintWriter greg = createWriter(dataPath("") + "/bezierSave.greg");
+  greg.write(speed + "\n");
+  for(int p = 0; p < allPoints.size(); p++){
+    String line = "";
+    for(int i = 0; i < allPoints.get(p).length; i++)
+      line += allPoints.get(p)[i].getPos(0).x + "," + allPoints.get(p)[i].getPos(0).y + ",";
+    greg.write(line.substring(0, line.length()-1) + (p == allPoints.size()-1? "": "\n"));
+  }
+  greg.flush();
+  greg.close();
+}
+void keyPressed(){
+  if(key==27){ // ESC
+    key=0;
+    saveBox = false;
+    savedBox = false;
+    typing = "";
+  }
+  if(saveBox){
+    if(key == '\n'){
+      int amt = Integer.parseInt(typing);
+      File file = new File("Points.java");
+      if(file.exists())
+        file.delete();
+      PrintWriter output = createWriter("Points.java");
+      String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\npublic class Points{\n\tpublic static final double curvesPerSec = " 
+        + speed/1000 + ";\n\tpublic static final double[] points = {\n";
+      for(int i = 0; i < allPoints.size()*amt; i++){
+        int ptInd = i/amt;
+        Vector2D pos = new BezierFunc(allPoints.get(ptInd)).getPos(((double)i%amt)/amt);
+        out += "\t\t" + pos.x + ", " + pos.y + ",\n";
+      }
+      out = out.substring(0, out.length()-2) + "\n\t};\n}";   // TODO: need to scale output points from pixels to feet/meters
+      output.println(out);
+      output.flush();
+      output.close();
+      typing = "";
+      saveBox = false;
+      savedBox = true;
+    }else
+      typing += key;
+  }
+  if(savedDataBox){
+    if(key != 's' && key != 'S')
+      savedDataBox = false;
   }
 }
 int mxPrev = 0, myPrev = 0;
