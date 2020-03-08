@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg;
-Vector2D mousePrev, mouseLoop;
+Vector2D mousePrev, mouseLoop, mouseSpecify;
 int mouseInd, pointInd;
 boolean saveBox = false;
 boolean savedBox = false;
@@ -12,6 +12,7 @@ int speed;
 String typing = "";
 long startTime;
 boolean savedDataBox = false;
+boolean enterPtLoc = false;
 void setup(){
   bg = loadImage("frcFieldCropped.png");
   size(1200, 700);
@@ -21,6 +22,7 @@ void setup(){
   startTime = System.currentTimeMillis();
   pointInd = 0;
   mouseLoop = mouse();
+  mousePrev = new Vector2D(0, 0);
   mouseInd = -1;
   speed = 1000;
   File greg = new File(dataPath("") + "/bezierSave.greg");
@@ -113,11 +115,17 @@ void draw(){
     fill(0, 0, 0);
     text("Saved! Press Esc to Close", 10, 17);
   }
-  
+  if(enterPtLoc){
+    fill(255, 255, 255);
+    strokeWeight(1);
+    rect(0, 0, 200, 25);
+    fill(0, 0, 0);
+    text("Add point(<x,y>): " + typing, 10, 17);
+  }
   
   mouseLoop = mouse;
   if(keyPressed){
-    if(!keyPrevPressed && allPoints.size() > 0 && !saveBox){
+    if(!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc){
       if(key == 'N' || key == 'n'){
         if(allPoints.get(pointInd).length > 2){
           pointInd++;
@@ -190,7 +198,8 @@ void draw(){
       }else if(key == 's' || key == 'S'){
         saveData();
         savedDataBox = true;
-      }
+      }else if(key == 'a' || key == 'A')
+        enterPtLoc = true;
     }
   }else{
     keyPrevPressed = false;
@@ -245,6 +254,7 @@ void keyPressed(){
     key=0;
     saveBox = false;
     savedBox = false;
+    enterPtLoc = false;
     typing = "";
   }
   if(saveBox){
@@ -271,9 +281,18 @@ void keyPressed(){
     }else
       typing += key;
   }
-  if(savedDataBox){
+  if(savedDataBox)
     if(key != 's' && key != 'S')
       savedDataBox = false;
+  if(enterPtLoc){
+    if(key == '\n'){
+      int ind = typing.indexOf(',');
+      mouseSpecify = new Vector2D(Double.parseDouble(typing.substring(0, ind)), Double.parseDouble(typing.substring(ind+1).trim()));
+      mouseReleased();
+      typing = "";
+      enterPtLoc = false;
+    }else
+      typing += key;
   }
 }
 int mxPrev = 0, myPrev = 0;
@@ -298,10 +317,13 @@ Vector2D mouse(){
 }
 
 void mouseReleased(){
-  if(mousePrev.add(mouse().scale(-1)).getMagnitude() < 0.0001){
+  Vector2D mouse = mouse();
+  if(mouseSpecify != null)
+    mouse = mouseSpecify;
+  if(mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null){
     if(allPoints.size() == 0){
       allPoints.add(new BezierPoint[1]);
-      allPoints.get(0)[0] = new BezierPoint(mouse());
+      allPoints.get(0)[0] = new BezierPoint(mouse);
     }else {
       BezierPoint[] points = allPoints.get(pointInd);
       if(points.length == 1){
@@ -309,14 +331,14 @@ void mouseReleased(){
           if(allPoints.size() == 1){
             BezierPoint[] temp = new BezierPoint[2];
             temp[0] = points[0];
-            temp[1] = new BezierPoint(mouse());
+            temp[1] = new BezierPoint(mouse);
             allPoints.set(0, temp);
           }else{
             BezierPoint[] nextPts = allPoints.get(pointInd+1);
             BezierPoint[] temp = new BezierPoint[3];
             temp[2] = points[0];
             temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
-            temp[0] = new BezierPoint(mouse());
+            temp[0] = new BezierPoint(mouse);
             allPoints.set(0, temp);
           }
         }else{
@@ -324,14 +346,14 @@ void mouseReleased(){
           temp[0] = points[0];
           BezierPoint[] prevPts = allPoints.get(pointInd-1);
           temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
-          temp[2] = new BezierPoint(mouse());
+          temp[2] = new BezierPoint(mouse);
           allPoints.set(pointInd, temp);
         }
       }else{
         BezierPoint[] temp = new BezierPoint[points.length+1];
         for(int i = 0; i < points.length-1; i++)
           temp[i] = points[i];
-        temp[temp.length-2] = new BezierPoint(mouse());
+        temp[temp.length-2] = new BezierPoint(mouse);
         temp[temp.length-1] = points[points.length-1];
         allPoints.set(pointInd, temp);
         adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
@@ -339,6 +361,7 @@ void mouseReleased(){
     }
   }
   mouseInd = -1;
+  mouseSpecify = null;
 }
 
 void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd){
