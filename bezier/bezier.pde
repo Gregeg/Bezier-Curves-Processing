@@ -373,15 +373,12 @@ void keyPressed(){
       if(key == '\n'){
         currentFileName = typing;
         saveFileNames.add(currentFileName);
-        File f = new File(dataPath("") + "/bezierSave.gurg");
-        if(f.exists()){
-          String t = "";
-          for(int i = 0; i < saveFileNames.size(); i++)
-            t = saveFileNames.get(i) + "\n";
-          typing = t + typing;
-        }
+        String t = "";
+        for(int i = 0; i < saveFileNames.size(); i++)
+          t += saveFileNames.get(i) + "\n";
+        t = t.substring(0, t.length()-1);
         PrintWriter greg = createWriter(dataPath("") + "/" + "bezierSave.gurg");
-        greg.append(typing);
+        greg.append(t);
         greg.flush();
         greg.close();
         saveData();
