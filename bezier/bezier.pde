@@ -166,7 +166,13 @@ void draw(){
       fill(0, 0, 0);
       text("Add point(<x,y>): " + typing, 10, 17);
     }
-    if(
+    if(saveNewDataBox){
+      fill(255, 255, 255);
+      strokeWeight(1);
+      rect(0, 0, 300, 25);
+      fill(0, 0, 0);
+      text("Save name: " + typing, 10, 17);
+    }
 
     mouseLoop = mouse;
     if(keyPressed){
