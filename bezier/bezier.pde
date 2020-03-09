@@ -321,6 +321,7 @@ void keyPressed(){
       saveBox = false;
       savedBox = false;
       enterPtLoc = false;
+      saveNewDataBox = false;
       typing = "";
     }
     if(saveBox){
@@ -358,6 +359,22 @@ void keyPressed(){
         mouseReleased();
         typing = "";
         enterPtLoc = false;
+      }else
+        typing += key;
+    }
+    if(saveNewDataBox){
+      if(key == '\n'){
+        currentFileName = typing;
+        saveFileNames.add(currentFileName);
+        typing = "";
+        File f = new File(dataPath("") + "/bezierSave.gurg");
+        if(f.exists())
+          typing = "\n" + typing;
+        PrintWriter greg = createWriter("bezierSave.gurg");
+        greg.write(typing);
+        saveData();
+        saveNewDataBox = false;
+        savedDataBox = true;
       }else
         typing += key;
     }
