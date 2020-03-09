@@ -14,11 +14,10 @@ long startTime;
 boolean savedDataBox = false;
 boolean enterPtLoc = false;
 boolean selectSaveFile = false;
-boolean saveNewData = false;
+boolean saveNewDataBox = false;
 String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
 ArrayList<String> saveFileNames = new ArrayList<String>();
 void setup(){
-  saveFileName = null;
   bg = loadImage("frcFieldCropped.png");
   size(1200, 700);
   frameRate(60);
@@ -32,13 +31,14 @@ void setup(){
   mouseInd = -1;
   speed = 1000;
   File greg = new File(dataPath("") + "/bezierSave.gurg");
-  selectSaveFile = greg.exists()
+  selectSaveFile = greg.exists();
   if(selectSaveFile){
     try{
       Scanner sc = new Scanner(greg);
       while(sc.hasNextLine()){
         saveFileNames.add(sc.nextLine());
       }
+      sc.close();
     }catch(Exception e){
       e.printStackTrace();
     }
@@ -46,14 +46,16 @@ void setup(){
 }
 void draw(){
   if(selectSaveFile){
-    font(bigFont);
     background(204);
-    text("Click on Save File or select New Layout", 100, 50);
+    fill(0, 0, 0);
+    textFont(createFont("Arial", 30));
+    text("Click on file or Create New Layout", 100, 50);
+    textFont(bigFont);
     text("Create New Layout", 100, 100);
     for(int i = 0; i < saveFileNames.size(); i++)
-      text(saveFileNames.get(i), 100, 100*(i+2));
+      text(saveFileNames.get(i), 100, 50*(i+4));
   }else{
-    font(defaultFont);
+    textFont(defaultFont);
     Vector2D mouse = mouse();
     long curTime = System.currentTimeMillis();
     //background(204);
@@ -132,10 +134,10 @@ void draw(){
     text("Speed: " + (float)speed/1000 + " curves per sec", 10, 17);
 
     fill(255, 255, 255);
-    rect(0, 700, 300, 675);
+    rect(0, 675, 200, 700);
     fill(0, 0, 0);
     Vector2D loc = getFeetCoor(mouse());
-    text("Location (feet): "(" + round(loc.x, 3),  + ", " + round(loc.y, 3) + ")", 10, 683);
+    text("Location (feet): (" + round(loc.x, 2)  + ", " + round(loc.y, 2) + ")", 10, 692);
 
     if(saveBox){
       fill(255, 255, 255);
@@ -246,8 +248,8 @@ void draw(){
         }else if(keyCode == DOWN){
           speed-=10;
           startTime = System.currentTimeMillis();
-        }else if(key == 's' || key == 'S')
-          if(currentSaveFile == null)
+        }else if(key == 's' || key == 'S'){
+          if(currentFileName == null)
             saveNewDataBox = true;
           else {
             saveData();
@@ -268,17 +270,17 @@ Vector2D getPxlCoor(Vector2D feet){return getPxlCoor(feet.x, feet.y);}
 Vector2D getFeetCoor(double pxX, double pxY){
   return new Vector2D((pxX - 250)/23.2761, (665-pxY)/23.2761);
 }
-Vector2D getFeetCoor(Vector2D pxl){return getFeetCoor(pxl.x, pxl.y);
+Vector2D getFeetCoor(Vector2D pxl){return getFeetCoor(pxl.x, pxl.y);}
 
 // rounds to the nearest decimal digit specified in "digit" variable
 double round(double num, int digit){
   double pow = Math.pow(10, digit);
   double n = num*pow;
-  return (n - ((int)n)) / pow;
+  return (int)n / pow;
 }
 void readSaveData(){
   try{
-    Scanner sc = new Scanner(new File(dataPath("") + "/" + currentSaveFile + ".greg"));
+    Scanner sc = new Scanner(new File(dataPath("") + "/" + currentFileName + ".greg"));
     speed = Integer.parseInt(sc.nextLine());
     allPoints = new ArrayList<BezierPoint[]>();
     while(sc.hasNextLine()){
@@ -306,10 +308,10 @@ void readSaveData(){
   }
 }
 void saveData(){
-  File file = new File(dataPath("") + "/" + currentSaveFile + ".greg");
+  File file = new File(dataPath("") + "/" + currentFileName + ".greg");
   if(file.exists())
     file.delete();
-  PrintWriter greg = createWriter(dataPath("") + "/" + currentSaveFile + ".greg");
+  PrintWriter greg = createWriter(dataPath("") + "/" + currentFileName + ".greg");
   greg.write(speed + "\n");
   for(int p = 0; p < allPoints.size(); p++){
     String line = "";
@@ -337,8 +339,7 @@ void keyPressed(){
         if(file.exists())
           file.delete();
         PrintWriter output = createWriter("Points.java");
-        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\n
-          public class Points{\n\tpublic static final double curvesPerSec = " 
+        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\npublic class Points{\n\tpublic static final double curvesPerSec = " 
           + speed/1000 + ";\n\tpublic static final double[] points = {\n";
         for(int i = 0; i < allPoints.size()*amt; i++){
           int ptInd = i/amt;
@@ -372,15 +373,21 @@ void keyPressed(){
       if(key == '\n'){
         currentFileName = typing;
         saveFileNames.add(currentFileName);
-        typing = "";
         File f = new File(dataPath("") + "/bezierSave.gurg");
-        if(f.exists())
-          typing = "\n" + typing;
-        PrintWriter greg = createWriter("bezierSave.gurg");
-        greg.write(typing);
+        if(f.exists()){
+          String t = "";
+          for(int i = 0; i < saveFileNames.size(); i++)
+            t = saveFileNames.get(i) + "\n";
+          typing = t + typing;
+        }
+        PrintWriter greg = createWriter(dataPath("") + "/" + "bezierSave.gurg");
+        greg.append(typing);
+        greg.flush();
+        greg.close();
         saveData();
         saveNewDataBox = false;
         savedDataBox = true;
+        typing = "";
       }else
         typing += key;
     }
@@ -417,15 +424,15 @@ Vector2D mouse(){
 
 void mouseReleased(){
   if(selectSaveFile){
-    ////////////////////////////////////////////////////////////////// TODO: get Height mouse coors to get save file name and read data
-    // also include "new layout" text
-    // also add box to specify save file name when saving new layout for first time(only new layout)
-    int ind = ((int)(mouseY-150))/100;
-    if(ind != -1){
-      currentFileName = saveFileNames.get();
-      readSaveData();
+    int ind = ((int)(mouseY-175))/50;
+    if(ind < saveFileNames.size()){
+      if(ind >= 0){
+        currentFileName = saveFileNames.get(ind);
+        readSaveData();
+        selectSaveFile = false;
+      }
+      selectSaveFile = false;
     }
-    selectsSaveFile = false;
   }else{
     Vector2D mouse = mouse();
     if(mouseSpecify != null)
