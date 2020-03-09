@@ -108,11 +108,10 @@ void draw(){
   text("Speed: " + (float)speed/1000 + " curves per sec", 10, 17);
   
   fill(255, 255, 255);
-  rect(0, 700, 250, 675);
+  rect(0, 700, 300, 675);
   fill(0, 0, 0);
-  Vector2D m = mouse();
-  String loc = m.x + ", " + m.y;
-  text("Location (feet): "(" + loc + ")", 10, 683);
+  Vector2D loc = getFeetCoor(mouse());
+  text("Location (feet): "(" + round(loc.x, 3),  + ", " + round(loc.y, 3) + ")", 10, 683);
   
   if(saveBox){
     fill(255, 255, 255);
@@ -233,7 +232,14 @@ Vector2D getPxlCoor(Vector2D feet){return getPxlCoor(feet.x, feet.y);}
 Vector2D getFeetCoor(double pxX, double pxY){
   return new Vector2D((pxX - 250)/23.2761, (665-pxY)/23.2761);
 }
-Vector2D getFeetCoor(Vector2D pxl){return getFeetCoor(pxl.x, pxl.y);}
+Vector2D getFeetCoor(Vector2D pxl){return getFeetCoor(pxl.x, pxl.y);
+
+// rounds to the nearest decimal digit specified in "digit" variable
+double round(double num, int digit){
+  double pow = Math.pow(10, digit);
+  double n = num*pow;
+  return (n - ((int)n)) / pow;
+}
 void readSaveData(){
   try{
     Scanner sc = new Scanner(new File(dataPath("") + "/bezierSave.greg"));
