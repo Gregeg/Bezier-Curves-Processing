@@ -31,3 +31,5 @@ exporting curves
 save simulation
 	-press s to save
 	-will automatically continue simulation auto next time program runs (save file in data folder in directory)
+	
+papers used for Bezier Curve research:  https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf
