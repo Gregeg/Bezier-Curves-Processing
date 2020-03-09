@@ -107,6 +107,13 @@ void draw(){
   fill(0, 0, 0);
   text("Speed: " + (float)speed/1000 + " curves per sec", 10, 17);
   
+  fill(255, 255, 255);
+  rect(0, 700, 250, 675);
+  fill(0, 0, 0);
+  Vector2D m = mouse();
+  String loc = m.x + ", " + m.y;
+  text("Location (feet): "(" + loc + ")", 10, 683);
+  
   if(saveBox){
     fill(255, 255, 255);
     strokeWeight(1);
