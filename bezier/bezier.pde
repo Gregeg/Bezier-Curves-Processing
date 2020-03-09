@@ -34,6 +34,20 @@ void draw(){
   long curTime = System.currentTimeMillis();
   //background(204);
   image(bg, 0, 0);
+  strokeWeight(1);
+  for(int i = 0; i < 45; i++){
+    if(i%5 == 0){
+      stroke(255, 0, 255, 75);
+      strokeWeight(2);
+    }else{
+      stroke(255, 255, 0, 75);
+      strokeWeight(1);
+    }
+    Vector2D pt = getPxlCoor(i, i);
+    line(0, (float)pt.y, 1200, (float)pt.y);
+    line((float)pt.x, 0, (float)pt.x, 700);
+  }
+  stroke(0, 0, 0);
   if(allPoints.size() > 0){
     BezierPoint[] points = allPoints.get(pointInd);
     for(int i = 0; i < allPoints.size(); i++){
@@ -205,6 +219,14 @@ void draw(){
     keyPrevPressed = false;
   }
 }
+Vector2D getPxlCoor(double feetX, double feetY){
+  return new Vector2D(250 + feetX*23.2761, 665 - feetY*23.2761);
+}
+Vector2D getPxlCoor(Vector2D feet){return getPxlCoor(feet.x, feet.y);}
+Vector2D getFeetCoor(double pxX, double pxY){
+  return new Vector2D((pxX - 250)/23.2761, (665-pxY)/23.2761);
+}
+Vector2D getFeetCoor(Vector2D pxl){return getFeetCoor(pxl.x, pxl.y);}
 void readSaveData(){
   try{
     Scanner sc = new Scanner(new File(dataPath("") + "/bezierSave.greg"));
@@ -268,10 +290,10 @@ void keyPressed(){
         + speed/1000 + ";\n\tpublic static final double[] points = {\n";
       for(int i = 0; i < allPoints.size()*amt; i++){
         int ptInd = i/amt;
-        Vector2D pos = new BezierFunc(allPoints.get(ptInd)).getPos(((double)i%amt)/amt);
+        Vector2D pos = getFeetCoor(new BezierFunc(allPoints.get(ptInd)).getPos(((double)i%amt)/amt));
         out += "\t\t" + pos.x + ", " + pos.y + ",\n";
       }
-      out = out.substring(0, out.length()-2) + "\n\t};\n}";   // TODO: need to scale output points from pixels to feet/meters
+      out = out.substring(0, out.length()-2) + "\n\t};\n}";
       output.println(out);
       output.flush();
       output.close();
@@ -287,12 +309,18 @@ void keyPressed(){
   if(enterPtLoc){
     if(key == '\n'){
       int ind = typing.indexOf(',');
-      mouseSpecify = new Vector2D(Double.parseDouble(typing.substring(0, ind)), Double.parseDouble(typing.substring(ind+1).trim()));
+      mouseSpecify = getPxlCoor(new Vector2D(Double.parseDouble(typing.substring(0, ind)), Double.parseDouble(typing.substring(ind+1).trim())));
       mouseReleased();
       typing = "";
       enterPtLoc = false;
     }else
       typing += key;
+  }
+  if(keyCode == BACKSPACE){
+    if(typing.length() <= 2)
+      typing = "";
+    else
+      typing = typing.substring(0, typing.length()-2);
   }
 }
 int mxPrev = 0, myPrev = 0;
