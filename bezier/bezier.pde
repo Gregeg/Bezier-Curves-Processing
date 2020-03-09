@@ -14,6 +14,7 @@ long startTime;
 boolean savedDataBox = false;
 boolean enterPtLoc = false;
 boolean selectSaveFile = false;
+boolean saveNewData = false;
 String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
 ArrayList<String> saveFileNames = new ArrayList<String>();
 void setup(){
@@ -30,7 +31,7 @@ void setup(){
   mousePrev = new Vector2D(0, 0);
   mouseInd = -1;
   speed = 1000;
-  File greg = new File(dataPath("") + "/bezierSave.greg");
+  File greg = new File(dataPath("") + "/bezierSave.gurg");
   selectSaveFile = greg.exists()
   if(selectSaveFile){
     try{
@@ -48,8 +49,9 @@ void draw(){
     font(bigFont);
     background(204);
     text("Click on Save File or select New Layout", 100, 50);
+    text("Create New Layout", 100, 100);
     for(int i = 0; i < saveFileNames.size(); i++)
-      text(saveFileNames.get(i), 100, 100*(i+1));
+      text(saveFileNames.get(i), 100, 100*(i+2));
   }else{
     font(defaultFont);
     Vector2D mouse = mouse();
@@ -164,10 +166,11 @@ void draw(){
       fill(0, 0, 0);
       text("Add point(<x,y>): " + typing, 10, 17);
     }
+    if(
 
     mouseLoop = mouse;
     if(keyPressed){
-      if(!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc){
+      if(!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox){
         if(key == 'N' || key == 'n'){
           if(allPoints.get(pointInd).length > 2){
             pointInd++;
@@ -237,9 +240,13 @@ void draw(){
         }else if(keyCode == DOWN){
           speed-=10;
           startTime = System.currentTimeMillis();
-        }else if(key == 's' || key == 'S'){
-          saveData();
-          savedDataBox = true;
+        }else if(key == 's' || key == 'S')
+          if(currentSaveFile == null)
+            saveNewDataBox = true;
+          else {
+            saveData();
+            savedDataBox = true;
+          }
         }else if(key == 'a' || key == 'A')
           enterPtLoc = true;
       }
@@ -265,7 +272,7 @@ double round(double num, int digit){
 }
 void readSaveData(){
   try{
-    Scanner sc = new Scanner(new File(dataPath("") + "/bezierSave.greg"));
+    Scanner sc = new Scanner(new File(dataPath("") + "/" + currentSaveFile + ".greg"));
     speed = Integer.parseInt(sc.nextLine());
     allPoints = new ArrayList<BezierPoint[]>();
     while(sc.hasNextLine()){
@@ -293,10 +300,10 @@ void readSaveData(){
   }
 }
 void saveData(){
-  File file = new File(dataPath("") + "/bezierSave.greg");
+  File file = new File(dataPath("") + "/" + currentSaveFile + ".greg");
   if(file.exists())
     file.delete();
-  PrintWriter greg = createWriter(dataPath("") + "/bezierSave.greg");
+  PrintWriter greg = createWriter(dataPath("") + "/" + currentSaveFile + ".greg");
   greg.write(speed + "\n");
   for(int p = 0; p < allPoints.size(); p++){
     String line = "";
@@ -390,6 +397,12 @@ void mouseReleased(){
     ////////////////////////////////////////////////////////////////// TODO: get Height mouse coors to get save file name and read data
     // also include "new layout" text
     // also add box to specify save file name when saving new layout for first time(only new layout)
+    int ind = ((int)(mouseY-150))/100;
+    if(ind != -1){
+      currentFileName = saveFileNames.get();
+      readSaveData();
+    }
+    selectsSaveFile = false;
   }else{
     Vector2D mouse = mouse();
     if(mouseSpecify != null)
