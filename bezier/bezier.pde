@@ -323,7 +323,8 @@ void keyPressed(){
         if(file.exists())
           file.delete();
         PrintWriter output = createWriter("Points.java");
-        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\npublic class Points{\n\tpublic static final double curvesPerSec = " 
+        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\n
+          public class Points{\n\tpublic static final double curvesPerSec = " 
           + speed/1000 + ";\n\tpublic static final double[] points = {\n";
         for(int i = 0; i < allPoints.size()*amt; i++){
           int ptInd = i/amt;
