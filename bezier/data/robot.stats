@@ -1,0 +1,8 @@
+Width(feet):
+Height(feet):
+Weight(pounds):
+Max Acceleraton(feet/sec^2):
+Wheel Radius(feet):
+MotorTorque<rpm, pound-feet>:
+500, 1000
+200, 500
