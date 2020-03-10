@@ -42,7 +42,7 @@ void setup(){
         saveFileNames.add(sc.nextLine());
       sc.close();
     }
-    sc = new Scanner(new File(dataPath("") + "\robot.stats")); 
+    sc = new Scanner(new File(dataPath("") + "/robot.stats")); 
     String line;  
     line = sc.nextLine();
     botWidth = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
@@ -54,6 +54,7 @@ void setup(){
     botMaxAccel = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
     line = sc.nextLine();
     botWheelRadius = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    sc.nextLine();
     while(sc.hasNextLine()){
       line = sc.nextLine().trim();
       int ind = line.indexOf(",");
@@ -69,6 +70,7 @@ void setup(){
         }
       }
     }
+    sc.close();
   } catch(Exception e){
     e.printStackTrace();
   }
@@ -167,6 +169,9 @@ void draw(){
     fill(0, 0, 0);
     Vector2D loc = getFeetCoor(mouse());
     text("Location (feet): (" + round(loc.x, 2)  + ", " + round(loc.y, 2) + ")", 10, 692);
+    
+    fill(204, 204, 204);
+    rect(0, 50, 150, 600);
 
     if(saveBox){
       fill(255, 255, 255);
@@ -267,21 +272,22 @@ void draw(){
             }
             allPoints.set(pointInd, temp);
           }else if(allPoints.size() == 1){
-            double lowDist = points[1].getPos(0).add(mouse.scale(-1)).getMagnitude();
             int lowInd = 0;
-            for(int i = 0; i < points.length; i++){
-              double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
-              if(dist < lowDist){
-                lowDist = dist;
-                lowInd = i;
+            if(points.length != 1){
+              double lowDist = points[0].getPos(0).add(mouse.scale(-1)).getMagnitude();
+              for(int i = 0; i < points.length; i++){
+                double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
+                if(dist < lowDist){
+                  lowDist = dist;
+                  lowInd = i;
+                }
               }
             }
             if(points.length == 2){
               BezierPoint[] temp = {points[1-lowInd]};
               allPoints.set(0, temp);
             }else{
-              BezierPoint[] temp = {};
-              allPoints.set(0, temp);
+              allPoints.remove(0);
             }
           }
           keyPrevPressed = true;
