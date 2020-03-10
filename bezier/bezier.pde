@@ -17,7 +17,7 @@ boolean selectSaveFile = false;
 boolean saveNewDataBox = false;
 String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
 ArrayList<String> saveFileNames = new ArrayList<String>();
-double botWidth, botHeight;
+double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 void setup(){
   bg = loadImage("frcFieldCropped.png");
   size(1200, 700);
@@ -46,8 +46,13 @@ void setup(){
     botWidth = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
     line = sc.nextLine();
     botHeight = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
-
-  } catch(Exception e){
+    line = sc.nextLine();
+    botWeight = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    botMaxAccel = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    botWheelRadius = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+} catch(Exception e){
     e.printStackTrace();
   }
 
