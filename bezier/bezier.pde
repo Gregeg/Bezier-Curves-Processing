@@ -17,6 +17,7 @@ boolean selectSaveFile = false;
 boolean saveNewDataBox = false;
 String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
 ArrayList<String> saveFileNames = new ArrayList<String>();
+double botWidth, botHeight;
 void setup(){
   bg = loadImage("frcFieldCropped.png");
   size(1200, 700);
@@ -32,17 +33,24 @@ void setup(){
   speed = 1000;
   File greg = new File(dataPath("") + "/bezierSave.gurg");
   selectSaveFile = greg.exists();
-  if(selectSaveFile){
-    try{
+  try{
+    if(selectSaveFile){
       Scanner sc = new Scanner(greg);
-      while(sc.hasNextLine()){
+      while(sc.hasNextLine())
         saveFileNames.add(sc.nextLine());
-      }
       sc.close();
-    }catch(Exception e){
-      e.printStackTrace();
     }
+    sc = new Scanner(new File("robot.stats")); 
+    String line;  
+    line = sc.nextLine();
+    botWidth = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    botHeight = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+
+  } catch(Exception e){
+    e.printStackTrace();
   }
+
 }
 void draw(){
   if(selectSaveFile){
