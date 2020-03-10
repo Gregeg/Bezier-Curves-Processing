@@ -339,14 +339,30 @@ void keyPressed(){
         if(file.exists())
           file.delete();
         PrintWriter output = createWriter("Points.java");
-        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\n\npublic class Points{\n\tpublic static final double curvesPerSec = " 
-          + speed/1000 + ";\n\tpublic static final double[] points = {\n";
+        String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\nimport java.util.ArrayList;\npublic class Points{\n\tpublic static final double curvesPerSec = " 
+          + ((double)speed)/1000 + ";\n\tpublic static double[] getPoints0(){\n\t\tdouble[] d = {";
+        int aLevel = 0;
         for(int i = 0; i < allPoints.size()*amt; i++){
           int ptInd = i/amt;
           Vector2D pos = getFeetCoor(new BezierFunc(allPoints.get(ptInd)).getPos(((double)i%amt)/amt));
-          out += "\t\t" + pos.x + ", " + pos.y + ",\n";
+          out += pos.x + ", " + pos.y + ", ";
+          if((i+1)%1000 == 0){
+            aLevel++;
+            out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tpublic static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
+          }
         }
-        out = out.substring(0, out.length()-2) + "\n\t};\n}";
+        out += "};\n\t\treturn d;\n\t}\n\tpublic static double[] getTotalPoints(){\n\t\t";
+        for(int i = 0; i <= aLevel; i++)
+          out += "double[] d" + i + " = getPoints" + i + "();\n\t\t";
+        out += "double[] d = new double[";
+        for(int i = 0; i <= aLevel; i++)
+          out += "d" + i + ".length + ";
+        out = out.substring(0, out.length()-3) + "];\n\t\t";
+        out += "ArrayList<double[]> dd = new ArrayList<double[]>();\n\t\t";
+        for(int i = 0; i <= aLevel; i++)
+          out += "dd.add(d" + i + ");\n\t\t";
+        out += "int ind = 0;\n\t\tfor(int i = 0; i < dd.size(); i++){\n\t\t\tdouble[] ddd = dd.get(i);\n\t\t\tfor(int j = 0; j < ddd.length; j++){\n\t\t\t\td[ind] = ddd[j];\n\t\t\t\tind++;\n\t\t\t}\n\t\t}\n\t\t";
+        out += "return d;\n\t}\n}";
         output.println(out);
         output.flush();
         output.close();
