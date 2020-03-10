@@ -340,7 +340,7 @@ void keyPressed(){
           file.delete();
         PrintWriter output = createWriter("Points.java");
         String out = "package frc.team578.robot.subsystems.swerve.motionProfiling;\nimport java.util.ArrayList;\npublic class Points{\n\tpublic static final double curvesPerSec = " 
-          + ((double)speed)/1000 + ";\n\tpublic static double[] getPoints0(){\n\t\tdouble[] d = {";
+          + ((double)speed)/1000 + ";\n\tprivate static double[] getPoints0(){\n\t\tdouble[] d = {";
         int aLevel = 0;
         for(int i = 0; i < allPoints.size()*amt; i++){
           int ptInd = i/amt;
@@ -348,7 +348,7 @@ void keyPressed(){
           out += pos.x + ", " + pos.y + ", ";
           if((i+1)%1000 == 0){
             aLevel++;
-            out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tpublic static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
+            out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tprivate static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
           }
         }
         out += "};\n\t\treturn d;\n\t}\n\tpublic static double[] getTotalPoints(){\n\t\t";
