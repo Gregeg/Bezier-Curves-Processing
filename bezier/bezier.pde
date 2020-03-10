@@ -237,6 +237,23 @@ void draw(){
               i++;
             }
             allPoints.set(pointInd, temp);
+          }else if(allPoints.size() == 1){
+            double lowDist = points[1].getPos(0).add(mouse.scale(-1)).getMagnitude();
+            int lowInd = 0;
+            for(int i = 0; i < points.length; i++){
+              double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
+              if(dist < lowDist){
+                lowDist = dist;
+                lowInd = i;
+              }
+            }
+            if(points.length == 2){
+              BezierPoint[] temp = {points[1-lowInd]};
+              allPoints.set(0, temp);
+            }else{
+              BezierPoint[] temp = {};
+              allPoints.set(0, temp);
+            }
           }
           keyPrevPressed = true;
         }else if(key == 'e' || key == 'E'){
