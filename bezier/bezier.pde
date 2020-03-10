@@ -18,7 +18,7 @@ boolean saveNewDataBox = false;
 String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
-ArrayList<double[]> torque = ArrayList<double[]>();
+ArrayList<double[]> torque = new ArrayList<double[]>();
 void setup(){
   bg = loadImage("frcFieldCropped.png");
   size(1200, 700);
@@ -35,13 +35,14 @@ void setup(){
   File greg = new File(dataPath("") + "/bezierSave.gurg");
   selectSaveFile = greg.exists();
   try{
+    Scanner sc;
     if(selectSaveFile){
-      Scanner sc = new Scanner(greg);
+      sc = new Scanner(greg);
       while(sc.hasNextLine())
         saveFileNames.add(sc.nextLine());
       sc.close();
     }
-    sc = new Scanner(new File("robot.stats")); 
+    sc = new Scanner(new File(dataPath("") + "\robot.stats")); 
     String line;  
     line = sc.nextLine();
     botWidth = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
@@ -62,7 +63,7 @@ void setup(){
           torque.add(a);
         else{
            ind = 0;
-           while(ind < torque.size && torque.get(ind)[0] < a[0])
+           while(ind < torque.size() && torque.get(ind)[0] < a[0])
              ind++;
            torque.add(ind, a);
         }
