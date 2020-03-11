@@ -151,6 +151,7 @@ void draw(){
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
       if(mouseInd != -1){
+        allPointsPrev = allPoints;
         Vector2D dv = mouse.add(mouseLoop.scale(-1));
         points[mouseInd] = new BezierPoint(points[mouseInd].getPos(0).add(dv));
         if(mouseInd == 1 && points.length == 3){
@@ -225,7 +226,6 @@ void draw(){
               allPoints.get(pointInd)[0] = allPoints.get(pointInd-1)[allPoints.get(pointInd-1).length-1];
             }
           }else if(pointInd == 0 && allPoints.size() > 1){
-            allPointsPrev = allPoints;
             allPoints.remove(0);
           }
           keyPrevPressed = true;
@@ -236,7 +236,8 @@ void draw(){
               allPoints.remove(pointInd);
             }
             pointInd--;
-          }else if(allPoints.size() > 0 && allPoints.get(0).length > 2){
+          }else if(allPoints.size() > 0 && allPoints.get(0).length > 2)
+              allPointsPrev = allPoints;
               allPoints.add(0, new BezierPoint[1]);
               allPoints.get(0)[0] = allPoints.get(1)[0];
           }
@@ -248,15 +249,14 @@ void draw(){
           if(points.length == 3){
             allPointsPrev = allPoints;
             if(pointInd == 0){
-              allPointsPrev = allPoints;
               allPoints.remove(0);
             }
             else if(pointInd == allPoints.size()-1){
-              allPointsPrev = allPoints;
               allPoints.remove(pointInd);
               pointInd--;
             }
           }else if(points.length > 3){
+            allPointsPrev = allPoints;
             double lowDist = points[1].getPos(0).add(mouse.scale(-1)).getMagnitude();
             int lowInd = 1;
             for(int i = 2; i < points.length-1; i++){
@@ -281,7 +281,6 @@ void draw(){
               temp[i - (skipped? 1: 0)] = points[i];
               i++;
             }
-            allPointsPrev = allPoints;
             allPoints.set(pointInd, temp);
           }else if(allPoints.size() == 1){
             int lowInd = 0;
@@ -322,6 +321,8 @@ void draw(){
           }
         }else if(key == 'a' || key == 'A')
           enterPtLoc = true;
+        else if((key == 'z' || key == 'Z') && keyCode == CONTROL)
+          allPoints = allPointsPrev;
       }
     }else{
       keyPrevPressed = false;
@@ -521,6 +522,7 @@ void mouseReleased(){
           allPoints.add(new BezierPoint[1]);
           allPoints.get(0)[0] = new BezierPoint(mouse);
         }else {
+          allPointsPrev = allPoints;
           BezierPoint[] points = allPoints.get(pointInd);
           if(points.length == 1){
             if(pointInd == 0){
@@ -557,6 +559,7 @@ void mouseReleased(){
         }
       }else{
         if(allPoints.get(pointInd).length != 4){
+        allPointsPrev = allPoints;
         ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
         }
       }
