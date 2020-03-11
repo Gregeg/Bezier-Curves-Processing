@@ -21,6 +21,7 @@ boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 ArrayList<double[]> torque = new ArrayList<double[]>();
+TorqueCurve tCurve;
 void setup(){
   bg = loadImage("frcFieldCropped.png");
   sOn = loadImage("on.png");
@@ -59,6 +60,7 @@ void setup(){
     line = sc.nextLine();
     botWheelRadius = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
     sc.nextLine();
+    ArrayList<double[]> torque = new ArrayList<double[]>();
     while(sc.hasNextLine()){
       line = sc.nextLine().trim();
       int ind = line.indexOf(",");
@@ -74,6 +76,7 @@ void setup(){
         }
       }
     }
+    tCurve = new TorqueCurve(torque);
     sc.close();
   } catch(Exception e){
     e.printStackTrace();
@@ -629,3 +632,56 @@ class Switch {
 public interface Action {
     void execute();
 }
+
+class Robot{
+  private Vector2D botPos, botSpeed, targetPos;
+  private double p, i, d;
+  
+  Robot(int p, int i, int d, Vector2D botPos, Vector2D targetPos){
+    this.p = p;
+    this.i = i;
+    this.d = d;
+  }
+  
+}
+
+class TorqueCurve{
+  private ArrayList<double[]> torque;
+  private int prev;
+ 
+  TorqueCurve(ArrayList<double[]> torque){  // torque is sorted by rpm
+    this.torque = torque;
+  }
+
+  public double getAccel(double speed, double power){   // accel in (ft/sec^2), speed in (ft/sec), power from 0 to 1
+    Boolean dirUp = null;
+    double t = null; // calculated torque
+    double revPerMin = speed*30/Math.PI/botWheelRadius;
+    
+    
+    
+    while(true){
+      if(prev == torque.size()){
+        prev--;
+        t = torque.get(prev)[1];
+        break;
+      }else if(torque.get(prev)[0] < revPerMin){
+        prev++;
+        if(dirUp == null)
+          dir = true;
+        else if(!dirUp){
+          double dv = torque.get(prev-1)[1]-torque.get(prev)[1];
+          t = torque.get(prev-1)*
+        }
+      }else if(torque.get(prev)[0] > revPerMin){
+        prev--;
+      }else{
+        t = torque.get(prev)[1];
+        break;
+      }
+    }
+  }
+
+
+}
+
