@@ -1,7 +1,8 @@
 import java.util.Scanner;
-
-ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
-PImage bg;
+import java.util.function.Function;
+// lit functional programming stuff https://softwareengineering.stackexchange.com/questions/276859/what-is-the-name-of-a-function-that-takes-no-argument-and-returns-nothing
+ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>(), allPointsPrev = new ArrayList<BezierPoint[]>();
+PImage bg, sOff, sOn;
 Vector2D mousePrev, mouseLoop, mouseSpecify;
 int mouseInd, pointInd;
 boolean saveBox = false;
@@ -15,12 +16,15 @@ boolean savedDataBox = false;
 boolean enterPtLoc = false;
 boolean selectSaveFile = false;
 boolean saveNewDataBox = false;
-String currentFileName = null;                                      // use me to store file and see if new layout or not!!!
+String currentFileName = null;
+boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 ArrayList<double[]> torque = new ArrayList<double[]>();
 void setup(){
   bg = loadImage("frcFieldCropped.png");
+  sOn = loadImage("on.png");
+  sOff = loadImage("off.png");
   size(1200, 700);
   frameRate(60);
   bigFont = createFont("Arial", 20);
@@ -172,7 +176,7 @@ void draw(){
     
     fill(204, 204, 204);
     rect(0, 50, 150, 600);
-
+    
     if(saveBox){
       fill(255, 255, 255);
       strokeWeight(1);
@@ -209,11 +213,11 @@ void draw(){
       fill(0, 0, 0);
       text("Save name: " + typing, 10, 17);
     }
-
     mouseLoop = mouse;
     if(keyPressed){
       if(!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox){
-        if(key == 'N' || key == 'n'){
+        if(key == 'N' || key == 'n' || keyCode == RIGHT){
+          allPointsPrev = allPoints;
           if(allPoints.get(pointInd).length > 2){
             pointInd++;
             if(pointInd == allPoints.size()){
@@ -221,13 +225,16 @@ void draw(){
               allPoints.get(pointInd)[0] = allPoints.get(pointInd-1)[allPoints.get(pointInd-1).length-1];
             }
           }else if(pointInd == 0 && allPoints.size() > 1){
+            allPointsPrev = allPoints;
             allPoints.remove(0);
           }
           keyPrevPressed = true;
-        }else if(key == 'B' || key == 'b'){
+        }else if(key == 'B' || key == 'b' || keyCode == LEFT){
           if(pointInd != 0){
-            if(pointInd == allPoints.size()-1 && allPoints.get(pointInd).length == 1)
+            if(pointInd == allPoints.size()-1 && allPoints.get(pointInd).length == 1){
+              allPointsPrev = allPoints;
               allPoints.remove(pointInd);
+            }
             pointInd--;
           }else if(allPoints.size() > 0 && allPoints.get(0).length > 2){
               allPoints.add(0, new BezierPoint[1]);
@@ -239,9 +246,13 @@ void draw(){
           // deletes nearest point, if start or end and deletes point with point length of 3, delete entire curve segment,
           // cannot delete middle segment point if segment has 3 points
           if(points.length == 3){
-            if(pointInd == 0)
+            allPointsPrev = allPoints;
+            if(pointInd == 0){
+              allPointsPrev = allPoints;
               allPoints.remove(0);
+            }
             else if(pointInd == allPoints.size()-1){
+              allPointsPrev = allPoints;
               allPoints.remove(pointInd);
               pointInd--;
             }
@@ -270,6 +281,7 @@ void draw(){
               temp[i - (skipped? 1: 0)] = points[i];
               i++;
             }
+            allPointsPrev = allPoints;
             allPoints.set(pointInd, temp);
           }else if(allPoints.size() == 1){
             int lowInd = 0;
@@ -283,6 +295,7 @@ void draw(){
                 }
               }
             }
+            allPointsPrev = allPoints;
             if(points.length == 2){
               BezierPoint[] temp = {points[1-lowInd]};
               allPoints.set(0, temp);
@@ -503,43 +516,49 @@ void mouseReleased(){
     if(mouseSpecify != null)
       mouse = mouseSpecify;
     if(mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null){
-      if(allPoints.size() == 0){
-        allPoints.add(new BezierPoint[1]);
-        allPoints.get(0)[0] = new BezierPoint(mouse);
-      }else {
-        BezierPoint[] points = allPoints.get(pointInd);
-        if(points.length == 1){
-          if(pointInd == 0){
-            if(allPoints.size() == 1){
-              BezierPoint[] temp = new BezierPoint[2];
-              temp[0] = points[0];
-              temp[1] = new BezierPoint(mouse);
-              allPoints.set(0, temp);
+      if(!simpleMode || allPoints.size() == 0){
+        if(allPoints.size() == 0){
+          allPoints.add(new BezierPoint[1]);
+          allPoints.get(0)[0] = new BezierPoint(mouse);
+        }else {
+          BezierPoint[] points = allPoints.get(pointInd);
+          if(points.length == 1){
+            if(pointInd == 0){
+              if(allPoints.size() == 1){
+                BezierPoint[] temp = new BezierPoint[2];
+                temp[0] = points[0];
+                temp[1] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
+              }else{
+                BezierPoint[] nextPts = allPoints.get(pointInd+1);
+                BezierPoint[] temp = new BezierPoint[3];
+                temp[2] = points[0];
+                temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
+                temp[0] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
+              }
             }else{
-              BezierPoint[] nextPts = allPoints.get(pointInd+1);
               BezierPoint[] temp = new BezierPoint[3];
-              temp[2] = points[0];
-              temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
-              temp[0] = new BezierPoint(mouse);
-              allPoints.set(0, temp);
+              temp[0] = points[0];
+              BezierPoint[] prevPts = allPoints.get(pointInd-1);
+              temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
+              temp[2] = new BezierPoint(mouse);
+              allPoints.set(pointInd, temp);
             }
           }else{
-            BezierPoint[] temp = new BezierPoint[3];
-            temp[0] = points[0];
-            BezierPoint[] prevPts = allPoints.get(pointInd-1);
-            temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
-            temp[2] = new BezierPoint(mouse);
+            BezierPoint[] temp = new BezierPoint[points.length+1];
+            for(int i = 0; i < points.length-1; i++)
+              temp[i] = points[i];
+            temp[temp.length-2] = new BezierPoint(mouse);
+            temp[temp.length-1] = points[points.length-1];
             allPoints.set(pointInd, temp);
-          }
-        }else{
-          BezierPoint[] temp = new BezierPoint[points.length+1];
-          for(int i = 0; i < points.length-1; i++)
-            temp[i] = points[i];
-          temp[temp.length-2] = new BezierPoint(mouse);
-          temp[temp.length-1] = points[points.length-1];
-          allPoints.set(pointInd, temp);
-          adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
-        } 
+            adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
+          } 
+        }
+      }else{
+        if(allPoints.get(pointInd).length != 4){
+        ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
+        }
       }
     }
     mouseInd = -1;
@@ -575,3 +594,35 @@ void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd){
         adjustControlPoints(pi-1, dv, false, 1);
     }
 } 
+
+class Switch {
+  private Vector2D pos;
+  private PImage nowImg;
+  private Action aOn, aOff;
+  
+  Switch(Vector2D pos, Action aOn, Action aOff){
+    this.pos = pos;
+    this.aOn = aOn;
+    this.aOff = aOff;
+  }
+  Vector2D getPos(){
+    return pos;
+  }
+  void toggleState(){
+    if(sOn == nowImg){
+      nowImg = sOff;
+      aOff.execute();
+    }else{
+      nowImg = sOn;
+      aOn.execute();
+    }
+  }
+  void paint(){
+     image(nowImg, (float)pos.x, (float)pos.y);
+  }
+}
+
+@FunctionalInterface
+public interface Action {
+    void execute();
+}
