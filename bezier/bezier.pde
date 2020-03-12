@@ -239,6 +239,7 @@ void draw() {
           }
           keyPrevPressed = true;
         } else if (key == 'B' || key == 'b' || keyCode == LEFT) {
+          println("b");
           if (pointInd != 0) {
             if (pointInd == allPoints.size()-1 && allPoints.get(pointInd).length == 1) {
               allPointsPrev = allPoints;
@@ -516,7 +517,7 @@ Vector2D mouse() {
 }
 
 void mouseReleased() {
-  if (mouseX>simpleModeSwitch.pos.x&&mouseY>simpleModeSwitch.pos.y&&mouseX<simpleModeSwitch.pos.x+simpleModeSwitch.size.x&&mouseY<simpleModeSwitch.pos.y+simpleModeSwitch.size.y) {
+  if (simpleModeSwitch.contains(mouse())) {
     simpleModeSwitch.toggleState();
   } else if (selectSaveFile) {
       int ind = ((int)(mouseY-175))/50;
@@ -680,6 +681,10 @@ class YitSwitch {
 
   void toggleState() {
     toggle=!toggle;
+  }
+  
+  boolean contains(Vector2D pos2){
+    return pos2.x>pos.x&&pos2.y>pos.y&&pos2.x<pos.x+size.x&&pos2.y<pos.y+size.y;
   }
 }
 @FunctionalInterface
