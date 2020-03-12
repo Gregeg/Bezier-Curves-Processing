@@ -22,10 +22,12 @@ ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 ArrayList<double[]> torque = new ArrayList<double[]>();
 TorqueCurve tCurve;
+YitSwitch simpleModeSwitch;
 void setup() {
   bg = loadImage("frcFieldCropped.png");
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
+  simpleModeSwitch = new YitSwitch(new Vector2D(10, 60), .5, "easy");
   size(1200, 700);
   frameRate(60);
   bigFont = createFont("Arial", 20);
@@ -94,6 +96,7 @@ void draw() {
     for (int i = 0; i < saveFileNames.size(); i++)
       text(saveFileNames.get(i), 100, 50*(i+4));
   } else {
+    simpleMode = simpleModeSwitch.getState();
     textFont(defaultFont);
     Vector2D mouse = mouse();
     long curTime = System.currentTimeMillis();
@@ -329,6 +332,7 @@ void draw() {
     } else {
       keyPrevPressed = false;
     }
+    simpleModeSwitch.paint();
   }
 }
 
@@ -510,71 +514,73 @@ Vector2D mouse() {
 }
 
 void mouseReleased() {
-  if (selectSaveFile) {
-    int ind = ((int)(mouseY-175))/50;
-    if (ind < saveFileNames.size()) {
-      if (ind >= 0) {
-        currentFileName = saveFileNames.get(ind);
-        readSaveData();
+  if (mouseX>simpleModeSwitch.pos.x&&mouseY>simpleModeSwitch.pos.y&&mouseX<simpleModeSwitch.pos.x+simpleModeSwitch.size.x&&mouseY<simpleModeSwitch.pos.y+simpleModeSwitch.size.y) {
+    simpleModeSwitch.toggleState();
+  } else if (selectSaveFile) {
+      int ind = ((int)(mouseY-175))/50;
+      if (ind < saveFileNames.size()) {
+        if (ind >= 0) {
+          currentFileName = saveFileNames.get(ind);
+          readSaveData();
+          selectSaveFile = false;
+        }
         selectSaveFile = false;
       }
-      selectSaveFile = false;
-    }
-  } else {
-    Vector2D mouse = mouse();
-    if (mouseSpecify != null)
-      mouse = mouseSpecify;
-    if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
-      if (!simpleMode || allPoints.size() == 0) {
-        if (allPoints.size() == 0) {
-          allPoints.add(new BezierPoint[1]);
-          allPoints.get(0)[0] = new BezierPoint(mouse);
-        } else {
-          allPointsPrev = allPoints;
-          BezierPoint[] points = allPoints.get(pointInd);
-          if (points.length == 1) {
-            if (pointInd == 0) {
-              if (allPoints.size() == 1) {
-                BezierPoint[] temp = new BezierPoint[2];
-                temp[0] = points[0];
-                temp[1] = new BezierPoint(mouse);
-                allPoints.set(0, temp);
+    } else {
+      Vector2D mouse = mouse();
+      if (mouseSpecify != null)
+        mouse = mouseSpecify;
+      if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+        if (!simpleMode || allPoints.size() == 0) {
+          if (allPoints.size() == 0) {
+            allPoints.add(new BezierPoint[1]);
+            allPoints.get(0)[0] = new BezierPoint(mouse);
+          } else {
+            allPointsPrev = allPoints;
+            BezierPoint[] points = allPoints.get(pointInd);
+            if (points.length == 1) {
+              if (pointInd == 0) {
+                if (allPoints.size() == 1) {
+                  BezierPoint[] temp = new BezierPoint[2];
+                  temp[0] = points[0];
+                  temp[1] = new BezierPoint(mouse);
+                  allPoints.set(0, temp);
+                } else {
+                  BezierPoint[] nextPts = allPoints.get(pointInd+1);
+                  BezierPoint[] temp = new BezierPoint[3];
+                  temp[2] = points[0];
+                  temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
+                  temp[0] = new BezierPoint(mouse);
+                  allPoints.set(0, temp);
+                }
               } else {
-                BezierPoint[] nextPts = allPoints.get(pointInd+1);
                 BezierPoint[] temp = new BezierPoint[3];
-                temp[2] = points[0];
-                temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
-                temp[0] = new BezierPoint(mouse);
-                allPoints.set(0, temp);
+                temp[0] = points[0];
+                BezierPoint[] prevPts = allPoints.get(pointInd-1);
+                temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
+                temp[2] = new BezierPoint(mouse);
+                allPoints.set(pointInd, temp);
               }
             } else {
-              BezierPoint[] temp = new BezierPoint[3];
-              temp[0] = points[0];
-              BezierPoint[] prevPts = allPoints.get(pointInd-1);
-              temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
-              temp[2] = new BezierPoint(mouse);
+              BezierPoint[] temp = new BezierPoint[points.length+1];
+              for (int i = 0; i < points.length-1; i++)
+                temp[i] = points[i];
+              temp[temp.length-2] = new BezierPoint(mouse);
+              temp[temp.length-1] = points[points.length-1];
               allPoints.set(pointInd, temp);
+              adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
             }
-          } else {
-            BezierPoint[] temp = new BezierPoint[points.length+1];
-            for (int i = 0; i < points.length-1; i++)
-              temp[i] = points[i];
-            temp[temp.length-2] = new BezierPoint(mouse);
-            temp[temp.length-1] = points[points.length-1];
-            allPoints.set(pointInd, temp);
-            adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
+          }
+        } else {
+          if (allPoints.get(pointInd).length != 4) {
+            allPointsPrev = allPoints;
+            ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
           }
         }
-      } else {
-        if (allPoints.get(pointInd).length != 4) {
-          allPointsPrev = allPoints;
-          ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
-        }
       }
+      mouseInd = -1;
+      mouseSpecify = null;
     }
-    mouseInd = -1;
-    mouseSpecify = null;
-  }
 }
 
 void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd) {
@@ -632,7 +638,48 @@ class Switch {
     image(nowImg, (float)pos.x, (float)pos.y);
   }
 }
+class YitSwitch {
+  Vector2D size, pos;
+  boolean toggle = true, labeled = false;
+  String label;
 
+  YitSwitch() {
+    this.pos = new Vector2D(random(0, width), random(0, height));
+  }
+  YitSwitch(Vector2D pos) {
+    this.pos = pos;
+    this.size= new Vector2D(sOn.width, sOn.height);
+  }
+  YitSwitch(Vector2D pos, float scale) {
+    this.pos = pos;
+    this.size = new Vector2D(sOn.width, sOn.height).scale(scale);
+  }
+  YitSwitch(Vector2D pos, float scale, String label) {
+    this.pos = pos;
+    this.size = new Vector2D(sOn.width, sOn.height).scale(scale);
+    this.labeled=true;
+    this.label = label;
+  }
+
+  void paint() {
+    fill(0);
+    textSize(15);
+    if (labeled) text(label, (float)pos.x+75, (float)pos.y+25);
+    if (toggle) {
+      image(sOn, (float)pos.x, (float)pos.y, (float)size.x, (float)size.y);
+    } else {
+      image(sOff, (float)pos.x, (float)pos.y, (float)size.x, (float)size.y);
+    }
+  }
+
+  boolean getState() {
+    return toggle;
+  }
+
+  void toggleState() {
+    toggle=!toggle;
+  }
+}
 @FunctionalInterface
   public interface Action {
   void execute();
@@ -659,7 +706,7 @@ class TorqueCurve {
 
   public double getAccel(double speed, double power) {   // accel in (ft/sec^2), speed in (ft/sec), power from 0 to 1
     Boolean dirUp = null;
-    double t = null; // calculated torque
+    double t = -888888888; // calculated torque
     double revPerMin = speed*30/Math.PI/botWheelRadius;
 
 
@@ -672,10 +719,10 @@ class TorqueCurve {
       } else if (torque.get(prev)[0] < revPerMin) {
         prev++;
         if (dirUp == null)
-          dir = true;
+          dirUp = true;
         else if (!dirUp) {
           double dv = torque.get(prev-1)[1]-torque.get(prev)[1];
-          t = torque.get(prev-1)*
+          t = torque.get(prev-1)[0]*1;//don't know what this does, so I broke it
         }
       } else if (torque.get(prev)[0] > revPerMin) {
         prev--;
@@ -684,5 +731,6 @@ class TorqueCurve {
         break;
       }
     }
+    return t;//yit was here
   }
 }
