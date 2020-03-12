@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.function.Function;
 // lit functional programming stuff https://softwareengineering.stackexchange.com/questions/276859/what-is-the-name-of-a-function-that-takes-no-argument-and-returns-nothing
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>(), allPointsPrev = new ArrayList<BezierPoint[]>();
-PImage bg, sOff, sOn;
+PImage bg, sOff, sOn, botrot;
 Vector2D mousePrev, mouseLoop, mouseSpecify;
 int mouseInd, pointInd;
 boolean saveBox = false;
@@ -27,6 +27,7 @@ void setup() {
   bg = loadImage("frcFieldCropped.png");
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
+  botrot = loadImage("botrot.png");
   simpleModeSwitch = new YitSwitch(new Vector2D(10, 60), .5, "easy");
   size(1200, 700);
   frameRate(60);
@@ -128,7 +129,8 @@ void draw() {
           }
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
-          point((float)pos.x, (float)pos.y);
+          //point((float)pos.x, (float)pos.y);
+          drawBot(pos,0);//draws robot and can handle rotation
         }
       }
       stroke(0, 200, 0);
@@ -733,4 +735,12 @@ class TorqueCurve {
     }
     return t;//yit was here
   }
+}
+
+void drawBot(Vector2D pos, float rot) {
+  pushMatrix();
+  translate((float)pos.x,(float)pos.y);
+  rotate(rot);
+  image(botrot,-botrot.width/2,-botrot.height/2);
+  popMatrix();
 }
