@@ -130,7 +130,9 @@ void draw() {
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
           //point((float)pos.x, (float)pos.y);
-          drawBot(pos,0);//draws robot and can handle rotation
+          if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1) {
+            drawBot(pos, 0);//draws robot and can handle rotation
+          }
         }
       }
       stroke(0, 200, 0);
@@ -520,72 +522,131 @@ void mouseReleased() {
   if (simpleModeSwitch.contains(mouse())) {
     simpleModeSwitch.toggleState();
   } else if (selectSaveFile) {
-      int ind = ((int)(mouseY-175))/50;
-      if (ind < saveFileNames.size()) {
-        if (ind >= 0) {
-          currentFileName = saveFileNames.get(ind);
-          readSaveData();
-          selectSaveFile = false;
-        }
+    int ind = ((int)(mouseY-175))/50;
+    if (ind < saveFileNames.size()) {
+      if (ind >= 0) {
+        currentFileName = saveFileNames.get(ind);
+        readSaveData();
         selectSaveFile = false;
       }
-    } else {
-      Vector2D mouse = mouse();
-      if (mouseSpecify != null)
-        mouse = mouseSpecify;
-      if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
-        if (!simpleMode || allPoints.size() == 0) {
-          if (allPoints.size() == 0) {
-            allPoints.add(new BezierPoint[1]);
-            allPoints.get(0)[0] = new BezierPoint(mouse);
-          } else {
-            allPointsPrev = allPoints;
-            BezierPoint[] points = allPoints.get(pointInd);
-            if (points.length == 1) {
-              if (pointInd == 0) {
-                if (allPoints.size() == 1) {
-                  BezierPoint[] temp = new BezierPoint[2];
-                  temp[0] = points[0];
-                  temp[1] = new BezierPoint(mouse);
-                  allPoints.set(0, temp);
-                } else {
-                  BezierPoint[] nextPts = allPoints.get(pointInd+1);
-                  BezierPoint[] temp = new BezierPoint[3];
-                  temp[2] = points[0];
-                  temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
-                  temp[0] = new BezierPoint(mouse);
-                  allPoints.set(0, temp);
-                }
-              } else {
-                BezierPoint[] temp = new BezierPoint[3];
+      selectSaveFile = false;
+    }
+  } else {
+    Vector2D mouse = mouse();
+    if (mouseSpecify != null)
+      mouse = mouseSpecify;
+    if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+      if (!simpleMode || allPoints.size() == 0) {
+        if (allPoints.size() == 0) {
+          allPoints.add(new BezierPoint[1]);
+          allPoints.get(0)[0] = new BezierPoint(mouse);
+        } else {
+          allPointsPrev = allPoints;
+          BezierPoint[] points = allPoints.get(pointInd);
+          if (points.length == 1) {
+            if (pointInd == 0) {
+              if (allPoints.size() == 1) {
+                BezierPoint[] temp = new BezierPoint[2];
                 temp[0] = points[0];
-                BezierPoint[] prevPts = allPoints.get(pointInd-1);
-                temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
-                temp[2] = new BezierPoint(mouse);
-                allPoints.set(pointInd, temp);
+                temp[1] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
+              } else {
+                BezierPoint[] nextPts = allPoints.get(pointInd+1);
+                BezierPoint[] temp = new BezierPoint[3];
+                temp[2] = points[0];
+                temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
+                temp[0] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
               }
             } else {
-              BezierPoint[] temp = new BezierPoint[points.length+1];
-              for (int i = 0; i < points.length-1; i++)
-                temp[i] = points[i];
-              temp[temp.length-2] = new BezierPoint(mouse);
-              temp[temp.length-1] = points[points.length-1];
+              BezierPoint[] temp = new BezierPoint[3];
+              temp[0] = points[0];
+              BezierPoint[] prevPts = allPoints.get(pointInd-1);
+              temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
+              temp[2] = new BezierPoint(mouse);
               allPoints.set(pointInd, temp);
-              adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
             }
-          }
-        } else {
-          if (allPoints.get(pointInd).length != 4) {
-            allPointsPrev = allPoints;
-            ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
+          } else {
+            BezierPoint[] temp = new BezierPoint[points.length+1];
+            for (int i = 0; i < points.length-1; i++)
+              temp[i] = points[i];
+            temp[temp.length-2] = new BezierPoint(mouse);
+            temp[temp.length-1] = points[points.length-1];
+            allPoints.set(pointInd, temp);
+            adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
           }
         }
+      } else {//SIMPLE MODE CODE
+        if (allPoints.get(pointInd).length < 4) {
+          allPointsPrev = allPoints;
+          ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
+          allPointsPrev = allPoints;
+          BezierPoint[] points = allPoints.get(pointInd);
+          if (points.length == 1) {
+            if (pointInd == 0) {
+              if (allPoints.size() == 1) {
+                BezierPoint[] temp = new BezierPoint[2];
+                temp[0] = points[0];
+                temp[1] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
+              } else {
+                BezierPoint[] nextPts = allPoints.get(pointInd+1);
+                BezierPoint[] temp = new BezierPoint[3];
+                temp[2] = points[0];
+                temp[1] = new BezierPoint(nextPts[0].getPos(0).add(nextPts[1].getPos(0).scale(-1)).add(temp[2].getPos(0)));
+                temp[0] = new BezierPoint(mouse);
+                allPoints.set(0, temp);
+              }
+            } else {
+              BezierPoint[] temp = new BezierPoint[3];
+              temp[0] = points[0];
+              BezierPoint[] prevPts = allPoints.get(pointInd-1);
+              temp[1] = new BezierPoint(prevPts[prevPts.length-1].getPos(0).add(prevPts[prevPts.length-2].getPos(0).scale(-1)).add(points[0].getPos(0)));
+              temp[2] = new BezierPoint(mouse);
+              allPoints.set(pointInd, temp);
+            }
+          } else {
+            BezierPoint[] temp = new BezierPoint[points.length+1];
+            for (int i = 0; i < points.length-1; i++)
+              temp[i] = points[i];
+            temp[temp.length-2] = new BezierPoint(mouse);
+            temp[temp.length-1] = points[points.length-1];
+            allPoints.set(allPoints.size()-1, temp);
+            adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
+          }
+        } else {
+          allPointsPrev = allPoints;
+          if (allPoints.get(pointInd).length > 2) {
+            pointInd++;
+            if (pointInd == allPoints.size()) {
+              allPoints.add(new BezierPoint[1]);
+              allPoints.get(pointInd)[0] = allPoints.get(pointInd-1)[allPoints.get(pointInd-1).length-1];
+            }
+          } else if (pointInd == 0 && allPoints.size() > 1) {
+            allPoints.remove(0);
+          }
+          keyPrevPressed = true;
+          mouseReleased();
+          Vector2D prePoint = allPoints.get(allPoints.size()-1)[0].pos;
+          mouseX = (int)(prePoint.x+(mouseX-prePoint.x)/2);
+          mouseY = (int)(prePoint.y+(mouseY-prePoint.y)/2);
+          mousePrev = mouse();
+          mouseReleased();
+        }
+        if (allPoints.get(allPoints.size()-1).length==2) {
+          BezierPoint[] temp = new BezierPoint[4], points=allPoints.get(allPoints.size()-1);
+          temp[0] = points[0];
+          temp[1] = new BezierPoint(new Vector2D((points[0].pos.x+points[1].pos.x)/2, (points[0].pos.y+points[1].pos.y)/2));
+          temp[2] = new BezierPoint(new Vector2D((points[0].pos.x+points[1].pos.x)/2, (points[0].pos.y+points[1].pos.y)/2));
+          temp[3] = points[1];
+          allPoints.set(allPoints.size()-1, temp);
+        }
       }
-      mouseInd = -1;
-      mouseSpecify = null;
     }
+    mouseInd = -1;
+    mouseSpecify = null;
+  }
 }
-
 void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd) {
   BezierPoint[] points = allPoints.get(pi);
   if (allPoints.get(pi).length == 1)
@@ -682,8 +743,8 @@ class YitSwitch {
   void toggleState() {
     toggle=!toggle;
   }
-  
-  boolean contains(Vector2D pos2){
+
+  boolean contains(Vector2D pos2) {
     return pos2.x>pos.x&&pos2.y>pos.y&&pos2.x<pos.x+size.x&&pos2.y<pos.y+size.y;
   }
 }
@@ -744,8 +805,8 @@ class TorqueCurve {
 
 void drawBot(Vector2D pos, float rot) {
   pushMatrix();
-  translate((float)pos.x,(float)pos.y);
+  translate((float)pos.x, (float)pos.y);
   rotate(rot);
-  image(botrot,-botrot.width/2,-botrot.height/2);
+  image(botrot, -botrot.width/2, -botrot.height/2);
   popMatrix();
 }
