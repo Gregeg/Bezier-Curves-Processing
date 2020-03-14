@@ -262,10 +262,11 @@ void draw() {
               allPoints.remove(pointInd);
             }
             pointInd--;
-          } else if (allPoints.size() > 0 && allPoints.get(0).length > 2)
+          } else if (allPoints.size() > 0 && allPoints.get(0).length > 2){
             allPointsPrev = allPoints;
-          allPoints.add(0, new BezierPoint[1]);
-          allPoints.get(0)[0] = allPoints.get(1)[0];
+            allPoints.add(0, new BezierPoint[1]);
+            allPoints.get(0)[0] = allPoints.get(1)[0];
+          }
         }
         keyPrevPressed = true;
       } else if (key == DELETE) {
@@ -605,6 +606,7 @@ void mouseReleased() {
           }
         }
       } else {//SIMPLE MODE CODE
+        pointInd = allPoints.size()-1;
         if (allPoints.get(pointInd).length < 4) {
           allPointsPrev = allPoints;
           ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
