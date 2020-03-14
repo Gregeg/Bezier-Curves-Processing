@@ -1,9 +1,11 @@
 import java.util.Scanner;
 import java.util.function.Function;
 // lit functional programming stuff https://softwareengineering.stackexchange.com/questions/276859/what-is-the-name-of-a-function-that-takes-no-argument-and-returns-nothing
-ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>(), allPointsPrev = new ArrayList<BezierPoint[]>();
+ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
+ArrayList<ArrayList<BezierPoint[]>> allPointsPrev = new ArrayList<ArrayList<BezierPoint[]>>();
 PImage bg, sOff, sOn, botrot;
 Vector2D mousePrev, mouseLoop, mouseSpecify;
+int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
 boolean saveBox = false;
 boolean savedBox = false;
@@ -88,6 +90,7 @@ void setup() {
   }
 }
 void draw() {
+  println(allPointsPrev.size());
   speed=constrain(speed,0,2147483647);
   if (selectSaveFile) {
     background(204);
@@ -176,7 +179,6 @@ void draw() {
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
       if (mouseInd != -1) {
-        allPointsPrev = allPoints;
         Vector2D dv = mouse.add(mouseLoop.scale(-1));
         points[mouseInd] = new BezierPoint(points[mouseInd].getPos(0).add(dv));
         if (mouseInd == 1 && points.length == 3) {
@@ -243,7 +245,7 @@ void draw() {
     if (keyPressed) {
       if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox) {
         if (key == 'N' || key == 'n' || keyCode == RIGHT) {
-          allPointsPrev = allPoints;
+          allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
           if (allPoints.get(pointInd).length > 2) {
             pointInd++;
             if (pointInd == allPoints.size()) {
@@ -255,98 +257,105 @@ void draw() {
           }
           keyPrevPressed = true;
         } else if (key == 'B' || key == 'b' || keyCode == LEFT) {
-          println("b");
           if (pointInd != 0) {
             if (pointInd == allPoints.size()-1 && allPoints.get(pointInd).length == 1) {
-              allPointsPrev = allPoints;
+              allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
               allPoints.remove(pointInd);
             }
             pointInd--;
           } else if (allPoints.size() > 0 && allPoints.get(0).length > 2){
-            allPointsPrev = allPoints;
+            allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
             allPoints.add(0, new BezierPoint[1]);
             allPoints.get(0)[0] = allPoints.get(1)[0];
           }
-        }
-        keyPrevPressed = true;
-      } else if (key == DELETE) {
-        BezierPoint[] points = allPoints.get(pointInd);
-        // deletes nearest point, if start or end and deletes point with point length of 3, delete entire curve segment,
-        // cannot delete middle segment point if segment has 3 points
-        if (points.length == 3) {
-          allPointsPrev = allPoints;
-          if (pointInd == 0) {
-            allPoints.remove(0);
-          } else if (pointInd == allPoints.size()-1) {
-            allPoints.remove(pointInd);
-            pointInd--;
-          }
-        } else if (points.length > 3) {
-          allPointsPrev = allPoints;
-          double lowDist = points[1].getPos(0).add(mouse.scale(-1)).getMagnitude();
-          int lowInd = 1;
-          for (int i = 2; i < points.length-1; i++) {
-            double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
-            if (dist < lowDist) {
-              lowDist = dist;
-              lowInd = i;
+          keyPrevPressed = true;
+        }else if (key == DELETE) {
+          BezierPoint[] points = allPoints.get(pointInd);
+          // deletes nearest point, if start or end and deletes point with point length of 3, delete entire curve segment,
+          // cannot delete middle segment point if segment has 3 points
+          if (points.length == 3) {
+            allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
+            if (pointInd == 0) {
+              allPoints.remove(0);
+            } else if (pointInd == allPoints.size()-1) {
+              allPoints.remove(pointInd);
+              pointInd--;
             }
-          }
-          if (lowInd == 1)
-            adjustControlPoints(pointInd, points[2].getPos(0).add(points[1].getPos(0).scale(-1)), false, 1);
-          else if (lowInd == points.length-2)
-            adjustControlPoints(pointInd, points[points.length-3].getPos(0).add(points[points.length-2].getPos(0).scale(-1)), true, points.length-2);
-          BezierPoint[] temp = new BezierPoint[points.length-1];
-          int i = 0;
-          boolean skipped = false;
-          while (i < points.length) {
-            if (i == lowInd) {
-              i++;
-              skipped = true;
-            }
-            temp[i - (skipped? 1: 0)] = points[i];
-            i++;
-          }
-          allPoints.set(pointInd, temp);
-        } else if (allPoints.size() == 1) {
-          int lowInd = 0;
-          if (points.length != 1) {
-            double lowDist = points[0].getPos(0).add(mouse.scale(-1)).getMagnitude();
-            for (int i = 0; i < points.length; i++) {
+          } else if (points.length > 3) {
+            allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
+            double lowDist = points[1].getPos(0).add(mouse.scale(-1)).getMagnitude();
+            int lowInd = 1;
+            for (int i = 2; i < points.length-1; i++) {
               double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
               if (dist < lowDist) {
                 lowDist = dist;
                 lowInd = i;
               }
             }
+            if (lowInd == 1)
+              adjustControlPoints(pointInd, points[2].getPos(0).add(points[1].getPos(0).scale(-1)), false, 1);
+            else if (lowInd == points.length-2)
+              adjustControlPoints(pointInd, points[points.length-3].getPos(0).add(points[points.length-2].getPos(0).scale(-1)), true, points.length-2);
+            BezierPoint[] temp = new BezierPoint[points.length-1];
+            int i = 0;
+            boolean skipped = false;
+            while (i < points.length) {
+              if (i == lowInd) {
+                i++;
+                skipped = true;
+              }
+              temp[i - (skipped? 1: 0)] = points[i];
+              i++;
+            }
+            allPoints.set(pointInd, temp);
+          } else if (allPoints.size() == 1) {
+            int lowInd = 0;
+            if (points.length != 1) {
+              double lowDist = points[0].getPos(0).add(mouse.scale(-1)).getMagnitude();
+              for (int i = 0; i < points.length; i++) {
+                double dist = points[i].getPos(0).add(mouse.scale(-1)).getMagnitude();
+                if (dist < lowDist) {
+                  lowDist = dist;
+                  lowInd = i;
+                }
+              }
+            }
+            allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
+            if (points.length == 2) {
+              BezierPoint[] temp = {points[1-lowInd]};
+              allPoints.set(0, temp);
+            } else {
+              allPoints.remove(0);
+            }
           }
-          allPointsPrev = allPoints;
-          if (points.length == 2) {
-            BezierPoint[] temp = {points[1-lowInd]};
-            allPoints.set(0, temp);
-          } else {
-            allPoints.remove(0);
+          keyPrevPressed = true;
+        } else if (key == 'e' || key == 'E') {
+          saveBox = true;
+          keyPrevPressed = true;
+        } else if (keyCode == UP) {
+          speed+=10;
+        } else if (keyCode == DOWN) {
+          speed-=10;
+        } else if (key == 's' || key == 'S') {
+          if (currentFileName == null)
+            saveNewDataBox = true;
+          else {
+            saveData();
+            savedDataBox = true;
           }
+        } else if (key == 'a' || key == 'A')
+          enterPtLoc = true;
+        else if (key == 26){
+          if(allPointsPrev.size() > 0){
+            allPoints = allPointsPrev.remove(allPointsPrev.size()-1);
+            if(allPoints.size() == 0)
+              pointInd = 0;
+            else if(allPoints.size() == pointInd)
+              pointInd = allPoints.size()-1;
+          }
+          keyPrevPressed = true;
         }
-        keyPrevPressed = true;
-      } else if (key == 'e' || key == 'E') {
-        saveBox = true;
-        keyPrevPressed = true;
-      } else if (keyCode == UP) {
-        speed+=10;
-      } else if (keyCode == DOWN) {
-        speed-=10;
-      } else if (key == 's' || key == 'S') {
-        if (currentFileName == null)
-          saveNewDataBox = true;
-        else {
-          saveData();
-          savedDataBox = true;
-        }
-      } else if (key == 'a' || key == 'A')
-        enterPtLoc = true;
-      else if ((key == 'z' || key == 'Z') && keyCode == CONTROL)
-        allPoints = allPointsPrev;
+      } 
     } else {
       keyPrevPressed = false;
     }
@@ -565,12 +574,13 @@ void mouseReleased() {
     if (mouseSpecify != null)
       mouse = mouseSpecify;
     if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+      if(!simpleMode)
+        allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
       if (!simpleMode || allPoints.size() == 0) {
         if (allPoints.size() == 0) {
           allPoints.add(new BezierPoint[1]);
           allPoints.get(0)[0] = new BezierPoint(mouse);
         } else {
-          allPointsPrev = allPoints;
           BezierPoint[] points = allPoints.get(pointInd);
           if (points.length == 1) {
             if (pointInd == 0) {
@@ -606,11 +616,10 @@ void mouseReleased() {
           }
         }
       } else {//SIMPLE MODE CODE
+        allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
         pointInd = allPoints.size()-1;
         if (allPoints.get(pointInd).length < 4) {
-          allPointsPrev = allPoints;
           ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
-          allPointsPrev = allPoints;
           BezierPoint[] points = allPoints.get(pointInd);
           if (points.length == 1) {
             if (pointInd == 0) {
@@ -645,7 +654,6 @@ void mouseReleased() {
             adjustControlPoints(pointInd, temp[temp.length-2].getPos(0).add(temp[temp.length-3].getPos(0).scale(-1)), true, temp.length-2);
           }
         } else {
-          allPointsPrev = allPoints;
           if (allPoints.get(pointInd).length > 2) {
             pointInd++;
             if (pointInd == allPoints.size()) {
