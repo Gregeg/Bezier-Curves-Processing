@@ -21,6 +21,7 @@ boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 ArrayList<double[]> torque = new ArrayList<double[]>();
+double[] rotations = new double[0];
 TorqueCurve tCurve;
 YitSwitch simpleModeSwitch;
 void setup() {
@@ -97,6 +98,14 @@ void draw() {
     for (int i = 0; i < saveFileNames.size(); i++)
       text(saveFileNames.get(i), 100, 50*(i+4));
   } else {
+    while (rotations.length< allPoints.size()) {
+      double[] tempR = new double[rotations.length+1];
+      for (int i = 0; i < rotations.length; i++) {
+        tempR[i]=rotations[i];
+      }
+      tempR[rotations.length]=random(0, TAU);
+      rotations=tempR;
+    }
     simpleMode = simpleModeSwitch.getState();
     textFont(defaultFont);
     Vector2D mouse = mouse();
@@ -131,7 +140,7 @@ void draw() {
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
           //point((float)pos.x, (float)pos.y);
           if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1) {
-            drawBot(pos, 0);//draws robot and can handle rotation
+            drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1,0,rotations.length-1)]-rotations[i]));//draws robot and can handle rotation
           }
         }
       }
@@ -365,23 +374,35 @@ void readSaveData() {
     Scanner sc = new Scanner(new File(dataPath("") + "/" + currentFileName + ".greg"));
     speed = Integer.parseInt(sc.nextLine());
     allPoints = new ArrayList<BezierPoint[]>();
+    boolean positions = true;
     while (sc.hasNextLine()) {
       String line = sc.nextLine();
       int ind = 0;
-      ArrayList<Double> a = new ArrayList<Double>();
-      do {
-        ind = line.indexOf(',');
-        if (ind == -1)
-          a.add(Double.parseDouble(line));
-        else {
-          a.add(Double.parseDouble(line.substring(0, ind)));
-          line = line.substring(ind+1);
+      if (line.charAt(0)=='R') {
+        positions=false;
+      } else if (positions) {
+        ArrayList<Double> a = new ArrayList<Double>();
+        do {
+          ind = line.indexOf(',');
+          if (ind == -1) {
+            a.add(Double.parseDouble(line));
+          } else {
+            a.add(Double.parseDouble(line.substring(0, ind)));
+            line = line.substring(ind+1);
+          }
+        } while (ind != -1);
+        BezierPoint[] pts = new BezierPoint[a.size()/2];
+        for (int i = 0; i < pts.length; i++)
+          pts[i] = new BezierPoint(new Vector2D(a.get(2*i), a.get(2*i+1)));
+        allPoints.add(pts);
+      } else {
+        double[] tempR = new double[rotations.length+1];
+        for (int i = 0; i < rotations.length; i++) {
+          tempR[i]=rotations[i];
         }
-      } while (ind != -1);
-      BezierPoint[] pts = new BezierPoint[a.size()/2];
-      for (int i = 0; i < pts.length; i++)
-        pts[i] = new BezierPoint(new Vector2D(a.get(2*i), a.get(2*i+1)));
-      allPoints.add(pts);
+        tempR[rotations.length]=Double.parseDouble(line);
+        rotations=tempR;
+      }
     }
     pointInd = 0;
     sc.close();
@@ -400,7 +421,11 @@ void saveData() {
     String line = "";
     for (int i = 0; i < allPoints.get(p).length; i++)
       line += allPoints.get(p)[i].getPos(0).x + "," + allPoints.get(p)[i].getPos(0).y + ",";
-    greg.write(line.substring(0, line.length()-1) + (p == allPoints.size()-1? "": "\n"));
+    greg.write(line.substring(0, line.length()-1) + "\n");
+  }
+  greg.write("R\n");
+  for (int i = 0; i < rotations.length; i++) {
+    greg.write(rotations[i]+(i==rotations.length-1?"":"\n"));
   }
   greg.flush();
   greg.close();
@@ -803,10 +828,10 @@ class TorqueCurve {
   }
 }
 
-void drawBot(Vector2D pos, float rot) {
+void drawBot(Vector2D pos, double rot) {
   pushMatrix();
   translate((float)pos.x, (float)pos.y);
-  rotate(rot);
+  rotate((float)rot);
   image(botrot, -botrot.width/2, -botrot.height/2);
   popMatrix();
 }
