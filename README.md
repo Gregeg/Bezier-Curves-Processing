@@ -34,7 +34,7 @@
    - if first time saving, enter save name and press "Enter" to save, or "ESC" to cancel
  - simulation can be selected in menu on startup
 
-## Rotations
--editing greg file after the R is required
+### Rotations
+ -editing greg file after the R is required
 
 ### [Papers used for Bezier Curve research](https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf)
