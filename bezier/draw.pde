@@ -100,7 +100,7 @@ void draw() {
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
       if (mouseInd != -1) {
-        Vector2D dv = mouse.add(pmouse());
+        Vector2D dv = mouse.add(pmouse().scale(-1));
         points[mouseInd].setPos(points[mouseInd].getPos(0).add(dv));
         if (mouseInd == 1 && points.length == 3) {
           adjustControlPoints(pointInd, dv, false, 1);
