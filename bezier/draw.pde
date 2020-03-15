@@ -50,16 +50,7 @@ void draw() {
           }
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
-          //point((float)pos.x, (float)pos.y);
-          if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1 || true) {
-            if (rotations[i]-rotations[constrain(i+1, 0, rotations.length-1)]<=0) {
-              //drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
-              drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i));
-            } else {
-              //drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
-              drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i));
-            }
-          }
+          drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i) + Math.PI/2);
         }
       }
       stroke(0, 200, 0);
