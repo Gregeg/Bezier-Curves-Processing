@@ -90,8 +90,7 @@ void setup() {
   }
 }
 void draw() {
-  println(allPointsPrev.size());
-  speed=constrain(speed,0,2147483647);
+  speed=constrain(speed,0,Integer.MAX_VALUE);
   if (selectSaveFile) {
     background(204);
     fill(0, 0, 0);
@@ -352,6 +351,10 @@ void draw() {
               pointInd = 0;
             else if(allPoints.size() == pointInd)
               pointInd = allPoints.size()-1;
+            if(simpleMode){
+              allPoints.remove(pointInd);
+              pointInd--;
+            }
           }
           keyPrevPressed = true;
         }
@@ -616,12 +619,12 @@ void mouseReleased() {
           }
         }
       } else {//SIMPLE MODE CODE
-        allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
         pointInd = allPoints.size()-1;
         if (allPoints.get(pointInd).length < 4) {
           ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
           BezierPoint[] points = allPoints.get(pointInd);
           if (points.length == 1) {
+            allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
             if (pointInd == 0) {
               if (allPoints.size() == 1) {
                 BezierPoint[] temp = new BezierPoint[2];
