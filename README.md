@@ -35,6 +35,7 @@
  - simulation can be selected in menu on startup
 
 ### Rotations
- - editing greg file after the R is required
+ - press "r" to move arrow at the the last endpoint of your curve
+ - click to set the new arrow position, which represents the robot's rotation
 
 ### [Papers used for Bezier Curve research](https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf)
