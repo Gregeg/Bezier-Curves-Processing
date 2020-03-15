@@ -21,3 +21,31 @@ double round(double num, int digit) {
   double n = num*pow;
   return (int)n / pow;
 }
+
+// one unit t per curve, returns range(0, 2pi)
+double getRotation(double t){
+  Double r1, r2;
+  println(t);
+  if(t >= allPoints.size()){
+    t = allPoints.size();
+    if((int)t-2 == -1)
+      r1 = 0d;
+    else
+      r1 = rotation.get(allPoints.get((int)t-2)[allPoints.get((int)t-2).length-1]);
+    r2 = rotation.get(allPoints.get((int)t-1)[allPoints.get((int)t-1).length-1]);
+  }else{
+    if((int)t-1 == -1)
+      r1 = 0d;
+    else
+      r1 = rotation.get(allPoints.get((int)t-1)[allPoints.get((int)t-1).length-1]);
+    r2 = rotation.get(allPoints.get((int)t)[allPoints.get((int)t).length-1]);
+  }
+  r1 = (r1 == null)? 0: r1%(Math.PI*2);
+  r2 = (r2 == null)? 0: r2%(Math.PI*2);
+  double f = 2*Math.PI;
+  if(Math.abs(r1-r2) < Math.PI)
+    f = 0;
+  if(r2 > r1)
+    f = -f;
+  return ((1-t%1)*r1 + (t%1)*(r2 + f))%(2*Math.PI);
+}

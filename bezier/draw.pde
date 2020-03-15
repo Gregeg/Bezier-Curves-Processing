@@ -1,6 +1,5 @@
 void draw() {
-  println(allPointsPrev.size());
-  speed=constrain(speed,0,2147483647);
+  speed=constrain(speed,0,Integer.MAX_VALUE);
   if (selectSaveFile) {
     background(204);
     fill(0, 0, 0);
@@ -52,11 +51,13 @@ void draw() {
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
           //point((float)pos.x, (float)pos.y);
-          if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1) {
+          if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1 || true) {
             if (rotations[i]-rotations[constrain(i+1, 0, rotations.length-1)]<=0) {
-              drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+              //drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+              drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i));
             } else {
-              drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+              //drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+              drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i));
             }
           }
         }
@@ -79,17 +80,28 @@ void draw() {
         prevPt = pt;
       }
       stroke(255, 0, 0);
-      strokeWeight(8);
+      strokeWeight(2);
+      float lengthOfArrows = 30;
       for (int p = 0; p < allPoints.size(); p++) {
+        BezierPoint[] pts = allPoints.get(p);
+        BezierPoint ptLast  = pts[pts.length-1];
         Vector2D pt = allPoints.get(p)[0].getPos(0);
         point((float)pt.x, (float)pt.y);
+        Double m = rotation.get(ptLast);
+        if(m == null)
+          m = 0d;
+        line((float)ptLast.getPos(0).x, (float)ptLast.getPos(0).y, (float)(ptLast.getPos(0).x + lengthOfArrows*Math.cos(m)), (float)(ptLast.getPos(0).y + lengthOfArrows*Math.sin(m)));
+      }
+      if(allPoints.size() != 0){
+        Vector2D p = allPoints.get(0)[0].getPos(0);
+        line((float)p.x, (float)p.y, (float)p.x + lengthOfArrows, (float)p.y);
       }
       BezierPoint[] last = allPoints.get(allPoints.size()-1);
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
       if (mouseInd != -1) {
         Vector2D dv = mouse.add(mouseLoop.scale(-1));
-        points[mouseInd] = new BezierPoint(points[mouseInd].getPos(0).add(dv));
+        points[mouseInd].setPos(points[mouseInd].getPos(0).add(dv));
         if (mouseInd == 1 && points.length == 3) {
           adjustControlPoints(pointInd, dv, false, 1);
           adjustControlPoints(pointInd, dv, true, 1);
@@ -149,6 +161,18 @@ void draw() {
       rect(0, 0, 300, 25);
       fill(0, 0, 0);
       text("Save name: " + typing, 10, 17);
+    }
+    if (rotationBox) {
+      fill(255, 255, 255);
+      strokeWeight(1);
+      rect(0, 0, 150, 25);
+      fill(0, 0, 0);
+      text("Click to set Rotation", 10, 17);
+      
+      
+      strokeWeight(10);
+      stroke(0, 255, 255);
+      
     }
     mouseLoop = mouse;
     if (keyPressed) {
@@ -261,9 +285,14 @@ void draw() {
               pointInd = 0;
             else if(allPoints.size() == pointInd)
               pointInd = allPoints.size()-1;
+            if(simpleMode){
+              allPoints.remove(pointInd);
+              pointInd--;
+            }
           }
           keyPrevPressed = true;
-        }
+        } else if ((key == 'r' || key == 'R') && allPoints.size() != 0 && allPoints.get(pointInd).length > 1)
+            rotationBox = true;
       } 
     } else {
       keyPrevPressed = false;

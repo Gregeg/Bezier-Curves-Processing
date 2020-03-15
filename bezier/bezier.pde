@@ -8,12 +8,15 @@ Vector2D mousePrev, mouseLoop, mouseSpecify;
 int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
 boolean saveBox = false;
+boolean rotationBox = false;
+HashMap<BezierPoint, Double> rotation = new HashMap<BezierPoint, Double>();   // input last point of curve, returns bot rotation in RADIANS at that point
 boolean savedBox = false;
 boolean keyPrevPressed = false;
 PFont bigFont, defaultFont;
 int speed;
 String typing = "";
 long startTime;
+long curId = 0;
 boolean savedDataBox = false;
 boolean enterPtLoc = false;
 boolean selectSaveFile = false;
@@ -36,7 +39,6 @@ void setup() {
   frameRate(60);
   bigFont = createFont("Arial", 20);
   defaultFont = createFont("Lucida Sans", 12);
-  println(dataPath(""));
   startTime = System.currentTimeMillis();
   pointInd = 0;
   mouseLoop = mouse();
