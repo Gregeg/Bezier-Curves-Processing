@@ -36,4 +36,10 @@ public class Vector2D {
 	public String toString() {
 		return x + ", " + y;
 	}
+	public Vector2D rotateBy(double ang) {
+		return new Vector2D(x*Math.cos(ang)-y*Math.sin(ang),x*Math.sin(ang)+y*Math.cos(ang));
+	}
+	public double angle() {
+		return Math.atan2(y,x)
+	}
 }

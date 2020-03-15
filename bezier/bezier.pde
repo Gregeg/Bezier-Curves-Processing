@@ -88,6 +88,7 @@ void setup() {
   }
 }
 void draw() {
+  speed=constrain(speed,0,2147483647);
   if (selectSaveFile) {
     background(204);
     fill(0, 0, 0);
@@ -103,7 +104,7 @@ void draw() {
       for (int i = 0; i < rotations.length; i++) {
         tempR[i]=rotations[i];
       }
-      tempR[rotations.length]=random(0, TAU);
+      tempR[rotations.length]=random(-PI, PI);
       rotations=tempR;
     }
     simpleMode = simpleModeSwitch.getState();
@@ -140,7 +141,11 @@ void draw() {
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
           //point((float)pos.x, (float)pos.y);
           if (((((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000-i+allPoints.size())%allPoints.size()<1) {
-            drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1,0,rotations.length-1)]-rotations[i]));//draws robot and can handle rotation
+            if (rotations[i]-rotations[constrain(i+1, 0, rotations.length-1)]<=0) {
+              drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+            } else {
+              drawBot(pos, rotations[i]+(((double)(curTime - startTime)*speed/1000)%1000)/1000*(rotations[constrain(i+1, 0, rotations.length-1)]-rotations[i]));
+            }
           }
         }
       }
@@ -328,10 +333,8 @@ void draw() {
         keyPrevPressed = true;
       } else if (keyCode == UP) {
         speed+=10;
-        startTime = System.currentTimeMillis();
       } else if (keyCode == DOWN) {
         speed-=10;
-        startTime = System.currentTimeMillis();
       } else if (key == 's' || key == 'S') {
         if (currentFileName == null)
           saveNewDataBox = true;
@@ -522,7 +525,7 @@ void keyPressed() {
 }
 int mxPrev = 0, myPrev = 0;
 void mousePressed() {
-  if (!selectSaveFile) {
+  if (!selectSaveFile && !simpleModeSwitch.contains(mouse())) {
     Vector2D mouse = mouse();
     mousePrev = mouse;
     if (allPoints.size() > 0) {
@@ -672,7 +675,7 @@ void mouseReleased() {
     mouseSpecify = null;
   }
 }
-void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd) {
+void adjustControlPoints(int pi, Vector2D dv, boolean up, int mouseInd) {//pi is point index?
   BezierPoint[] points = allPoints.get(pi);
   if (allPoints.get(pi).length == 1)
     dv = new Vector2D(0, 0);
