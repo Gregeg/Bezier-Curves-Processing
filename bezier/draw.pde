@@ -9,15 +9,7 @@ void draw() {
     text("Create New Layout", 100, 100);
     for (int i = 0; i < saveFileNames.size(); i++)
       text(saveFileNames.get(i), 100, 50*(i+4));
-  } else {
-    while (rotations.length< allPoints.size()) {
-      double[] tempR = new double[rotations.length+1];
-      for (int i = 0; i < rotations.length; i++) {
-        tempR[i]=rotations[i];
-      }
-      tempR[rotations.length]=random(-PI, PI);
-      rotations=tempR;
-    }
+  }else{
     simpleMode = simpleModeSwitch.getState();
     textFont(defaultFont);
     Vector2D mouse = mouse();

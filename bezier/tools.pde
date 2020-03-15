@@ -27,7 +27,6 @@ double round(double num, int digit) {
 // one unit t per curve, returns range(0, 2pi)
 double getRotation(double t){
   Double r1, r2;
-  println(t);
   if(t >= allPoints.size()){
     t = allPoints.size();
     if((int)t-2 == -1)

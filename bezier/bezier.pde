@@ -26,7 +26,6 @@ boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
 ArrayList<double[]> torque = new ArrayList<double[]>();
-double[] rotations = new double[0];
 TorqueCurve tCurve;
 YitSwitch simpleModeSwitch;
 void setup() {
