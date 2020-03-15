@@ -100,7 +100,7 @@ void draw() {
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
       if (mouseInd != -1) {
-        Vector2D dv = mouse.add(mouseLoop.scale(-1));
+        Vector2D dv = mouse.add(pmouse());
         points[mouseInd].setPos(points[mouseInd].getPos(0).add(dv));
         if (mouseInd == 1 && points.length == 3) {
           adjustControlPoints(pointInd, dv, false, 1);
@@ -174,7 +174,6 @@ void draw() {
       stroke(0, 255, 255);
       
     }
-    mouseLoop = mouse;
     if (keyPressed) {
       if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox) {
         if (key == 'N' || key == 'n' || keyCode == RIGHT) {

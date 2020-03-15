@@ -4,7 +4,7 @@ import java.util.function.Function;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 ArrayList<ArrayList<BezierPoint[]>> allPointsPrev = new ArrayList<ArrayList<BezierPoint[]>>();
 PImage bg, sOff, sOn, botrot;
-Vector2D mousePrev, mouseLoop, mouseSpecify;
+Vector2D mousePrev, mouseSpecify;
 int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
 boolean saveBox = false;
@@ -41,7 +41,6 @@ void setup() {
   defaultFont = createFont("Lucida Sans", 12);
   startTime = System.currentTimeMillis();
   pointInd = 0;
-  mouseLoop = mouse();
   mousePrev = new Vector2D(0, 0);
   mouseInd = -1;
   speed = 1000;

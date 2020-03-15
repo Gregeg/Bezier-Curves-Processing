@@ -1,7 +1,9 @@
 Vector2D mouse() {
   return new Vector2D(mouseX, mouseY);
 }
-
+Vector2D pmouse() {
+  return new Vector2D(pmouseX, pmouseY);
+}
 Vector2D getPxlCoor(double feetX, double feetY) {
   return new Vector2D(250 + feetX*23.2761, 665 - feetY*23.2761);
 }
