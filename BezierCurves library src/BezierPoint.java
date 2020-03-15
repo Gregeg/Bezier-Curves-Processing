@@ -1,8 +1,8 @@
 
+
 public class BezierPoint implements BezierUnit{
 	public Vector2D pos;
-	public boolean first;
-	public double rotation;
+	
 	public BezierPoint(Vector2D pos) {
 		this.pos = pos;
 	}
@@ -13,14 +13,10 @@ public class BezierPoint implements BezierUnit{
 	public Vector2D getPos(double t) {
 		return pos;
 	}
-	public void setRot(double rotation) {
-		this.first = true;
-		this.rotation = rot;
+	public void setPos(Vector2D pos) {
+		this.pos = pos;
 	}
-	public Vector2D getNthDeriv(double t, int deriv) {
-		if(deriv == 0)
-			return getPos(t);
-		else
-			return new Vector2D(0, 0);
+	public Vector2D getDeriv(double t) {
+		return new Vector2D(0, 0);
 	}
 }

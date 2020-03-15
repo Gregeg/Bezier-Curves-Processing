@@ -30,16 +30,25 @@ public class Vector2D {
 	public double componentSum() {
 		return x+y;
 	}
+	// 0 at vector<1,0> , increases counter-clockwise, range(-pi, pi);
+	public double getAngleRad() {
+		return Math.atan2(y, x);
+	}
+	public double getAngleDeg() {
+		return Math.toDegrees(getAngleRad());
+	}
+	public void setAngleRad(double ang) {
+		double mag = getMagnitude();
+		x = Math.cos(ang)*mag;
+		y = Math.sin(ang)*mag;
+	}
+	public void setAngleDeg(double ang) {
+		setAngleRad(Math.toRadians(ang));
+	}
 	public Vector2D getNorm() {
 		return new Vector2D(this).scale(1/getMagnitude());
 	}
 	public String toString() {
 		return x + ", " + y;
-	}
-	public Vector2D rotateBy(double ang) {
-		return new Vector2D(x*Math.cos(ang)-y*Math.sin(ang),x*Math.sin(ang)+y*Math.cos(ang));
-	}
-	public double angle() {
-		return Math.atan2(y,x)
 	}
 }
