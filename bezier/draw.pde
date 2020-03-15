@@ -64,21 +64,31 @@ void draw() {
       }
       stroke(255, 0, 0);
       strokeWeight(2);
-      float lengthOfArrows = 30;
       for (int p = 0; p < allPoints.size(); p++) {
         BezierPoint[] pts = allPoints.get(p);
         BezierPoint ptLast  = pts[pts.length-1];
         Vector2D pt = allPoints.get(p)[0].getPos(0);
+        strokeWeight(8);
         point((float)pt.x, (float)pt.y);
+        strokeWeight(2);
         Double m = rotation.get(ptLast);
         if(m == null)
           m = 0d;
-        line((float)ptLast.getPos(0).x, (float)ptLast.getPos(0).y, (float)(ptLast.getPos(0).x + lengthOfArrows*Math.cos(m)), (float)(ptLast.getPos(0).y + lengthOfArrows*Math.sin(m)));
-      }
+        if(!rotationBox || p != pointInd){
+          Vector2D end = new Vector2D(ptLast.getPos(0).x + lengthOfArrows*Math.cos(m), ptLast.getPos(0).y + lengthOfArrows*Math.sin(m));
+          line((float)ptLast.getPos(0).x, (float)ptLast.getPos(0).y, (float)end.x, (float)end.y);
+          line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m + Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m + Math.PI/4)));
+          line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m - Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m - Math.PI/4)));
+        }
+    }
       if(allPoints.size() != 0){
         Vector2D p = allPoints.get(0)[0].getPos(0);
         line((float)p.x, (float)p.y, (float)p.x + lengthOfArrows, (float)p.y);
+        line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y + arrowSize/1.414);
+        line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y - arrowSize/1.414);
+
       }
+      strokeWeight(8);
       BezierPoint[] last = allPoints.get(allPoints.size()-1);
       point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
       stroke(0, 0, 0);
@@ -151,11 +161,15 @@ void draw() {
       rect(0, 0, 150, 25);
       fill(0, 0, 0);
       text("Click to set Rotation", 10, 17);
-      
-      
-      strokeWeight(10);
-      stroke(0, 255, 255);
-      
+      strokeWeight(3);
+      stroke(255, 0, 0);
+      Vector2D pt = allPoints.get(pointInd)[allPoints.get(pointInd).length-1].getPos(0);
+      Vector2D m = mouse().add(pt.scale(-1));
+      m = m.scale((lengthOfArrows+20)/m.getMagnitude());
+      Vector2D end = m.add(pt);
+      line((float)pt.x, (float)pt.y, (float)(end.x), (float)(end.y));
+      line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m.getAngleRad() + Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m.getAngleRad() + Math.PI/4)));
+      line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m.getAngleRad() - Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m.getAngleRad() - Math.PI/4)));
     }
     if (keyPressed) {
       if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox) {
