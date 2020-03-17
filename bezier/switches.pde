@@ -78,3 +78,35 @@ class YitSwitch {
   public interface Action {
   void execute();
 }
+
+class YitButton {
+  public Vector2D pos,size;
+  String label;
+  long downTime = 0;
+  YitButton(Vector2D pos, String label) {
+    this.label = label;
+    this.pos = pos;
+    this.size = new Vector2D(100,100);
+  }
+  YitButton(Vector2D pos, Vector2D size, String label) {
+    this.pos = pos; 
+    this.size = size;
+    this.label = label;
+  }
+  
+  void paint() {
+    if (state()) {
+      image(bOff,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
+    } else {
+      image(bOn,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
+      
+    }
+  }
+  boolean state() {
+    return downTime > System.currentTimeMillis()-1000;
+  }
+  
+  void push() {
+    downTime = System.currentTimeMillis(); 
+  }
+}
