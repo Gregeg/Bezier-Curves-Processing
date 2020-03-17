@@ -25,15 +25,18 @@ boolean saveNewDataBox = false;
 String currentFileName = null;
 boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
-double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius;
+double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius, botDriveGearRatio, drag, fric;
+boolean simulation = true;
 ArrayList<double[]> torque = new ArrayList<double[]>();
 TorqueCurve tCurve;
+Robot robot;
 YitSwitch simpleModeSwitch;
 void setup() {
   bg = loadImage("frcFieldCropped.png");
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
   botrot = loadImage("botrot.png");
+  robot = new Robot(1, 0, .2, new Vector2D(300, 300), new Vector2D(200, 200));
   simpleModeSwitch = new YitSwitch(new Vector2D(10, 60), .5, "easy");
   size(1200, 700);
   frameRate(60);
@@ -66,6 +69,12 @@ void setup() {
     botMaxAccel = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
     line = sc.nextLine();
     botWheelRadius = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    botDriveGearRatio = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    drag = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+    line = sc.nextLine();
+    fric = Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
     sc.nextLine();
     ArrayList<double[]> torque = new ArrayList<double[]>();
     while (sc.hasNextLine()) {
@@ -89,4 +98,5 @@ void setup() {
   catch(Exception e) {
     e.printStackTrace();
   }
+  println(tCurve.getAccel(1, 1));
 }

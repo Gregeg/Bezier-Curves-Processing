@@ -1,11 +1,11 @@
 Width(feet): 5
 Height(feet):5
-Weight(pounds): 30
+Weight(pounds): 50
 Max Acceleraton(feet/sec^2): 30
-Wheel Radius(feet): .3
-MotorTorque<rpm, pound-feet>:
-30, 80
-100, 60
-500, 20
-800, 5
-1000, 0
+Wheel Radius(feet): .125
+Drive Gear Ratio(motor axle RPM / wheel axle RPM ): 6.67
+Drag Coefficient: 1
+Friction Coefficient: 1
+MotorTorque<rpm, foot-pounds>:
+0, 1.785
+5310, 0

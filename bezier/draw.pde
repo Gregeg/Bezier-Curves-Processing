@@ -42,7 +42,11 @@ void draw() {
           }
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
-          drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i) + Math.PI/2);
+          if(simulation){
+            point((float)pos.x, (float)pos.y);
+            robot.periodic();
+          }else
+            drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i) + Math.PI/2);
         }
       }
       stroke(0, 200, 0);
