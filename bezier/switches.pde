@@ -96,9 +96,9 @@ class YitButton {
   
   void paint() {
     if (state()) {
-      image(bOff,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
+      //image(bOff,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
     } else {
-      image(bOn,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
+      //image(bOn,(float)pos.x,(float)pos.y,(float)size.x,(float)size.y);
       
     }
   }

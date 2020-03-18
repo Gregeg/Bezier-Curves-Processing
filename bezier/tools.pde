@@ -50,3 +50,10 @@ double getRotation(double t){
     f = -f;
   return ((1-t%1)*r1 + (t%1)*(r2 + f))%(2*Math.PI);
 }
+// returns length of cross product
+double crossProd(Vector2D v1, Vector2D v2){
+  return Math.abs(v1.x*v2.y - v1.y*v2.x);
+}
+double dotProd(Vector2D v1, Vector2D v2){
+  return v1.x*v2.x + v1.y*v2.y;
+}

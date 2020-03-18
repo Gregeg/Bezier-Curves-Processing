@@ -1,5 +1,6 @@
 void draw() {
   speed=constrain(speed,0,Integer.MAX_VALUE);
+  botRotScale = (simulation? 2.5f: 1f);
   if (selectSaveFile) {
     background(204);
     fill(0, 0, 0);
@@ -43,7 +44,11 @@ void draw() {
           strokeWeight(10);
           Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
           if(simulation){
-            point((float)pos.x, (float)pos.y);
+            if(i == (int)(((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000){
+              point((float)pos.x, (float)pos.y);
+              robot.setTargetPos(getFeetCoor(pos));
+              robot.setTargetRot(getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i));
+            }
             robot.periodic();
           }else
             drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i) + Math.PI/2);
@@ -291,8 +296,14 @@ void draw() {
             }
           }
           keyPrevPressed = true;
-        } else if ((key == 'r' || key == 'R') && allPoints.size() != 0 && allPoints.get(pointInd).length > 1)
-            rotationBox = true;
+        } else if ((key == 'r' || key == 'R') && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){
+          rotationBox = !rotationBox;
+          keyPrevPressed = true;
+        }else if(key == ' '){
+          simulation = !simulation;
+          keyPrevPressed = true;
+        }
+          
       } 
     } else {
       keyPrevPressed = false;

@@ -137,6 +137,8 @@ void mouseReleased() {
       if (mouseSpecify != null)
         mouse = mouseSpecify;
       if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+        if(simulation)
+          robot.resetTime();
         if(!simpleMode)
           allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));
         if (!simpleMode || allPoints.size() == 0) {
@@ -181,7 +183,6 @@ void mouseReleased() {
         } else {//SIMPLE MODE CODE
           pointInd = allPoints.size()-1;
           if (allPoints.get(pointInd).length < 4) {
-            ////////////////////////////////////////////////// TODO, add the 3 points for a cubic spline
             BezierPoint[] points = allPoints.get(pointInd);
             if (points.length == 1) {
               allPointsPrev.add(new ArrayList<BezierPoint[]>(allPoints));

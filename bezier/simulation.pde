@@ -1,9 +1,12 @@
 class Robot {
   private Vector2D botPos, botSpeed, targetPos;
-  private double p, i, d, rot;
+  private Vector2D[] lastWheelPos;
+  private double p, i, d, rot, angularSpeed, targetRot;
   private double sinB, cosB; // sin and cos of botrot wheel positions
+  private long prevTime;
 
   Robot(double p, double i, double d, Vector2D botPos, Vector2D targetPos) {
+    
     this.p = p;
     this.i = i;
     this.d = d;
@@ -13,25 +16,92 @@ class Robot {
     double l = Math.sqrt(botWidth*botWidth + botHeight*botHeight);
     sinB = botHeight / l;
     cosB = botWidth / l;
+    prevTime = System.currentTimeMillis();
+    botSpeed = new Vector2D(0, 0);
+    lastWheelPos = new Vector2D[4];
+    angularSpeed = 0;
+    botSpeed= new Vector2D(50, 0);
+  }
+  void resetTime(){
+    prevTime = System.currentTimeMillis();
   }
   void periodic(){
-    drawBot(botPos, rot);
+    long curTime = System.currentTimeMillis();
+    long dt = curTime-prevTime;
+    drawBot(getPxlCoor(botPos), rot + PI/2);
+    Vector2D errP = targetPos.add(botPos.scale(-1)).scale(p);
+    Vector2D eF;
+    if(errP.getMagnitude() > 1)
+      eF = errP.scale(1/errP.getMagnitude());
+    else
+      eF = errP;
+    double r = rot - targetRot;
+    if(r > 1)
+      r = 1;
+    else if(r < -1)
+      r = -1;
+    Vector2D[] wheels = getPreportionalWheelPower(eF.add(botSpeed.scale(-d)), r, rot); // wheel power
+    double powerSumMag = 0;
+    for(int i = 0; i < 4; i++)
+       powerSumMag += wheels[i].getMagnitude();
+    double speed = botSpeed.getMagnitude();
+    Vector2D[] wheelForce = new Vector2D[4];
+    for(int i = 0; i < 4; i++){
+      wheelForce[i] = wheels[i].scale(tCurve.getWheelForce(speed/powerSumMag*wheels[i].getMagnitude(), wheels[i].getMagnitude())/wheels[i].getMagnitude());
+    }
+    double angleAccel = 0;
+    for(int i = 0; i < 4; i++)
+      angleAccel += dotProd(lastWheelPos[i].scale(1/lastWheelPos[i].getMagnitude()), wheelForce[i]);
+    angleAccel /= moment2;
+    Vector2D wheelForceSum = new Vector2D(0, 0);
+    for(int i = 0; i < 4; i++)
+      wheelForceSum = wheelForceSum.add(wheelForce[i]);
+    Vector2D botAccel = wheelForceSum.scale(32.174/*slug*//botWeight);
+    skidding = false;
+    if(botAccel.getMagnitude() > botMaxAccel){
+      botAccel = botAccel.scale(botMaxAccel/botAccel.getMagnitude());
+      skidding = true;
+    }
+    botAccel = botAccel.add(botSpeed.scale(-drag*speed - fric/speed));// reduced accel due to friction
+    Vector2D nBotSpeed = botSpeed.add(botAccel.scale((double)dt/1000));
+    angleAccel = angleAccel - angResistance*angularSpeed;
+    double nAngularSpeed = angularSpeed + angleAccel*dt/1000;
+    botPos = botPos.add(nBotSpeed.add(botSpeed).scale((double)dt/2000));
+    rot += (nAngularSpeed + angularSpeed)/2;
+    botSpeed = nBotSpeed;
+    angularSpeed = nAngularSpeed;
+    prevTime = curTime; //<>//
   }
   void setTargetPos(Vector2D pos){
     targetPos = pos;
+  }
+  void setTargetRot(double tr){
+    targetRot = tr;
   }
   void setP(double p){this.p = p;}
   void setI(double i){this.i = i;}
   void setD(double d){this.d = d;}
   
   // rewrite of "move" method in SwerveMath.java, much more efficenct and compact
-  // str = (both vars range<-1, 1>; forces relative to bot), rot = (rot power positive is cw), ang = (current angle in radians)
-  ArrayList<Vector2D> getWheelForces(Vector2D str, double rot, double ang){
-    double sinA = Math.sin(ang), cosA = Math.sin(ang);
+  // str = (both vars range<-1, 1>; forces relative to bot), rotPower = (rot power positive is cw), ang = (current angle in radians)
+  Vector2D[] getPreportionalWheelPower(Vector2D str, double rotPower, double ang){
+    double sinA = Math.sin(ang), cosA = Math.cos(ang);
     double sAcB = sinA*cosB, cAsB = cosA*sinB, c2 = cosA*cosB, s2 = sinA*sinB;
-    Vector2D v1 = new Vector2D(-sAcB-cAsB, c2-s2),  // rotate vector <1,0> A+B+pi/2 radians
-      v2 = new Vector2D(-sAcB+cAsB, c2+s2);       // rotate vector <1,0> A+B+pi/2 radians
-    
+    Vector2D v1 = new Vector2D(-sAcB-cAsB, c2-s2),  // rotate vector <1,0> A+B+pi/2 radians(rot speed of wheel 1)
+      v2 = new Vector2D(-sAcB+cAsB, c2+s2);         // rotate vector <1,0> A-B+pi/2 radians(rot speed of wheel 4)
+    Vector2D[] out = {v1, v2.scale(-1), v1.scale(-1), v2};
+    double max = 0;
+    for(int i = 0; i < 4; i++){
+      lastWheelPos[i] = out[i];
+      out[i] = out[i].scale(-rotPower).add(str);     // add strafe speed to angle speed
+      double l = out[i].getMagnitude();
+      if(l > max)
+        max = l;
+    }
+    if(max > 1)
+      for(int i = 0; i < 4; i++)
+        out[i] = out[i].scale(1/max);   // normalize vectors
+    return out;
   }
 }
 class TorqueCurve {
@@ -51,7 +121,7 @@ class TorqueCurve {
 
 
     while (true) {
-      if (prev == torque.size()) { //<>//
+      if (prev == torque.size()) {
         prev--;
         t = torque.get(prev)[1];
         break;
@@ -84,6 +154,6 @@ class TorqueCurve {
         break;
       }
     }
-    return t*botDriveGearRatio/power/botWheelRadius;
+    return t*botDriveGearRatio*power/botWheelRadius;
   }
 }
