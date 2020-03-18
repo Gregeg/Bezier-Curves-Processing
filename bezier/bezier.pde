@@ -28,7 +28,7 @@ String currentFileName = null;
 boolean simpleMode = true;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius, botDriveGearRatio, drag, fric, moment2, angResistance;
-boolean simulation = true;
+boolean simulation = false;
 ArrayList<double[]> torque = new ArrayList<double[]>();
 TorqueCurve tCurve;
 Robot robot;
