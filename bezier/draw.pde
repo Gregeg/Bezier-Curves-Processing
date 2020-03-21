@@ -11,7 +11,7 @@ void draw() {
     for (int i = 0; i < saveFileNames.size(); i++)
       text(saveFileNames.get(i), 100, 50*(i+4));
   }else{
-    simpleMode = simpleModeSwitch.getState();
+    simpleMode = io.get(0).state();
     textFont(defaultFont);
     Vector2D mouse = mouse();
     long curTime = System.currentTimeMillis();
@@ -135,6 +135,10 @@ void draw() {
       stroke(0, 0, 0);
       if (mouseInd != -1) {
         Vector2D dv = mouse.add(pmouse().scale(-1));
+        if(!moved && dv.getMagnitude() != 0){
+          addState();
+          moved = true;
+        }
         points[mouseInd].setPos(points[mouseInd].getPos(0).add(dv));
         if (mouseInd == 1 && points.length == 3) {
           adjustControlPoints(pointInd, dv, false, 1);
@@ -143,7 +147,8 @@ void draw() {
           adjustControlPoints(pointInd, dv, false, mouseInd);
         else if (mouseInd >= points.length-2)
           adjustControlPoints(pointInd, dv, true, mouseInd);
-      }
+      }else
+        moved = false;
     }
     fill(255, 255, 255);
     strokeWeight(1);
@@ -158,7 +163,7 @@ void draw() {
     text("Location (feet): (" + round(loc.x, 2)  + ", " + round(loc.y, 2) + ")", 10, 692);
 
     fill(204, 204, 204);
-    rect(0, 50, 150, 600);
+    rect(0, 50, 200, 600);  // Menu
 
     if (saveBox) {
       fill(255, 255, 255);
@@ -254,8 +259,10 @@ void draw() {
       fill(0, 0, 0);
       text("use arrow keys and press \"C\" for position" + typing, 10, 17);
     }
-    if (keyPressed) {
+    if (keyPressed || pushed) {
       if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox) {
+        if(pushed)
+          pushed = false;
         if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT)) {
           if (allPoints.get(pointInd).length > 2) {
             pointInd++;
@@ -370,29 +377,29 @@ void draw() {
             }
           }
           keyPrevPressed = true;
-        } else if (key == 'e' || key == 'E') {
+        } else if (key == 'e' || key == 'E' || io.get(2).state()) { // Export
           saveBox = true;
           keyPrevPressed = true;
         } else if (keyCode == UP) {
           speed+=10;
         } else if (keyCode == DOWN) {
           speed-=10;
-        } else if (key == 's' || key == 'S') {
+        } else if (key == 's' || key == 'S' || io.get(1).state()) { // Save
           if (currentFileName == null)
             saveNewDataBox = true;
           else {
             saveData();
             savedDataBox = true;
           }
-        } else if (key == 'a' || key == 'A')
+        } else if (key == 'a' || key == 'A' || io.get(3).state()) // specify point
           enterPtLoc = true;
-        else if (key == 26){       // UNDO
+        else if (key == 26 || io.get(4).state()){       // UNDO
           restoreState();
           keyPrevPressed = true;
-        } else if ((key == 'r' || key == 'R') && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){
+        } else if ((key == 'r' || key == 'R' || io.get(5).state()) && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){  // rotate
           rotationBox = !rotationBox;
           keyPrevPressed = true;
-        }else if(key == ' ' && allPoints.get(0).length > 1){
+        }else if((key == ' ' || io.get(7).state()) && allPoints.get(0).length > 1){
           simulation = !simulation;
           if(simulation){
             robot.setPos(getFeetCoor(allPoints.get(0)[0].getPos(0)));
@@ -400,12 +407,12 @@ void draw() {
             startTime = System.currentTimeMillis();
           }
           keyPrevPressed = true;
-        }else if(key == 'p' || key == 'P'){
+        }else if(key == 'p' || key == 'P' || io.get(8).state()){ // pid values
           pidChar = 'P';
           pidBox = !pidBox;
           typing = "";
           keyPrevPressed = true;
-        }else if(allPoints.get(pointInd).length > 1 && (key == 'c' || key == 'C')){
+        }else if(allPoints.get(pointInd).length > 1 && (key == 'c' || key == 'C' || io.get(6).state())){ // command
           commandBox = true;
           typing = "";
           keyPrevPressed = true;
@@ -441,6 +448,6 @@ void draw() {
       commandLeft = 0;
       commandRight = 0;
     }
-    simpleModeSwitch.paint();
+    paintIO();
   }
 }

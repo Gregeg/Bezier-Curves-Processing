@@ -1,7 +1,8 @@
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.Collections;
-// lit functional programming stuff https://softwareengineering.stackexchange.com/questions/276859/what-is-the-name-of-a-function-that-takes-no-argument-and-returns-nothing
+
+boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg, sOff, sOn, botrot;
 Vector2D mousePrev, mouseSpecify;
@@ -34,6 +35,7 @@ boolean saveNewDataBox = false;
 boolean skidding = false;
 String currentFileName = null;
 boolean simpleMode = true;
+boolean moved = false;
 boolean pidBox = false;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius, botDriveGearRatio, drag, fric, moment2, angResistance;
@@ -41,13 +43,21 @@ boolean simulation = false;
 ArrayList<double[]> torque = new ArrayList<double[]>();
 TorqueCurve tCurve;
 Robot robot;
-YitSwitch simpleModeSwitch;
 void setup() {
   bg = loadImage("frcFieldCropped.png");
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
   botrot = loadImage("botrot.png");
-  simpleModeSwitch = new YitSwitch(new Vector2D(10, 60), .5, "easy");
+  new YitSwitch("Simple");            // ignore it, IDE is just stupid
+  new YitButton("Save (s)");  
+  new YitButton("Export (e)");
+  new YitButton("Specify Point", "(a)");
+  new YitButton("Undo (Ctrl+Z)");
+  new YitButton("Rotate (r)");
+  new YitButton("Command (c)");
+  new YitButton("Simulation", "(Space)");
+  new YitButton("PID Values (p)");
+  
   size(1200, 700);
   frameRate(60);
   bigFont = createFont("Arial", 20);

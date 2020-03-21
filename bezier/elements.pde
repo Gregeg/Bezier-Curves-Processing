@@ -59,8 +59,13 @@ class PointState {
   ArrayList<BezierPoint[]> allPts;
   ArrayList<Command> comms;
   
-  PointState(ArrayList<BezierPoint[]> allPts, ArrayList<Command> comms){
-    this.allPts = new ArrayList<BezierPoint[]>(allPts);
+  PointState(ArrayList<BezierPoint[]> aPts, ArrayList<Command> comms){
+    allPts = new ArrayList<BezierPoint[]>(aPts);
+    for(int i = 0; i < allPts.size(); i++){
+      BezierPoint[] bp = new BezierPoint[aPts.get(i).length];
+      for(int d = 0; d < bp.length; d++) bp[d] = new BezierPoint(aPts.get(i)[d].getPos(0));
+      allPts.set(i, bp);
+    }
     this.comms = new ArrayList<Command>(comms);
   }
   

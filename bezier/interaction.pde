@@ -157,7 +157,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  if (!selectSaveFile && !simpleModeSwitch.contains(mouse())) {
+  if (!selectSaveFile && mouseX > 200) {
     Vector2D mouse = mouse();
     mousePrev = mouse;
     if (allPoints.size() > 0) {
@@ -186,9 +186,9 @@ void mouseReleased() {
     mouseInd = -1;
     rotationBox = false;
   } else {
-    if (simpleModeSwitch.contains(mouse())) {
-      simpleModeSwitch.toggleState();
-    } else if (selectSaveFile) {
+    if(mouseX < 200)
+      checkIO();
+    if (selectSaveFile) {
       int ind = ((int)(mouseY-175))/50;
       if (ind < saveFileNames.size()) {
         if (ind >= 0) {

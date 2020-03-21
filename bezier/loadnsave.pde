@@ -15,18 +15,20 @@ void readSaveData() {
         robot.setD(Double.parseDouble(sc.nextLine().trim()));
         line = sc.nextLine();
         int ind2;
-        do {
-          ind = line.indexOf(',');
-          ind2 = line.indexOf(',', ind+1);
-          if (ind2 == -1) {
-            commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1))));
-          } else {
-            commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1, ind2))));
-            line = line.substring(ind2+1);
-          }
-        } while (ind2 != -1);
-        sc.nextLine();
-        ind = 0;
+        if(!line.equals("R")){
+          do {
+            ind = line.indexOf(',');
+            ind2 = line.indexOf(',', ind+1);
+            if (ind2 == -1) {
+              commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1))));
+            } else {
+              commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1, ind2))));
+              line = line.substring(ind2+1);
+            }
+          } while (ind2 != -1);
+          sc.nextLine();
+          ind = 0;
+        }
       } else if (positions) {
         ArrayList<Double> a = new ArrayList<Double>();
         do {
@@ -71,7 +73,9 @@ void saveData() {
   String line = "";
   for(int i = 0; i < commands.size(); i++)
     line += commands.get(i).getName() + "," + commands.get(i).getT() + ",";
-  greg.write(line.substring(0, line.length()-1) + "\nR\n");
+  if(commands.size() != 0)
+    greg.write(line.substring(0, line.length()-1) + "\n");
+  greg.write("R\n");
   for (int i = 0; i < allPoints.size(); i++) {
     BezierPoint[] pts = allPoints.get(i);
     if(pts.length > 1){

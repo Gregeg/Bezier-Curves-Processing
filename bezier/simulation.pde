@@ -40,14 +40,10 @@ class Robot {
       eF = errP;
     double r = rot - targetRot;
     r %= 2*PI;
-    if(r > 0)
-      r = (r < PI? r: r-2*PI);
-    else if(r < 0)
-      r = (r > -PI? r: -r-2*PI);
-    if(r > 1)
-      r = 1;
-    else if(r < -1)
-      r = -1;
+    if(Math.abs(r) > PI)
+      r += 2*PI*(r<0? -1: 1);
+    if(Math.abs(r) > 1)
+      r = (r<0? -1: 1);
     Vector2D[] wheels = getPreportionalWheelPower(eF.add(botSpeed.scale(-d)), r, rot); // wheel power
     double powerSumMag = 0;
     for(int i = 0; i < 4; i++)
