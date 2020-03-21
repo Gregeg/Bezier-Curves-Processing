@@ -86,7 +86,7 @@ void restoreState(){
       pointInd = 0;
     else if(pointInd == allPoints.size())
       pointInd--;
-    if(simpleMode){
+    if(simpleMode && allPoints.get(pointInd).length == 1){
        allPoints.remove(pointInd);
        pointInd--;
     }
