@@ -4,7 +4,7 @@ import java.util.Collections;
 
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
-PImage bg, sOff, sOn, botrot;
+PImage bg, sOff, sOn, botrot,bOn,bOff;
 Vector2D mousePrev, mouseSpecify;
 int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
@@ -48,6 +48,8 @@ void setup() {
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
   botrot = loadImage("botrot.png");
+  bOn = loadImage("button.png");
+  bOff = loadImage("buttoff.png");
   new YitSwitch("Simple");            // ignore it, IDE is just stupid
   new YitButton("Save (s)");  
   new YitButton("Export (e)");
