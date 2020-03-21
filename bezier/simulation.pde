@@ -41,7 +41,7 @@ class Robot {
     double r = rot - targetRot;
     r %= 2*PI;
     if(Math.abs(r) > PI)
-      r += 2*PI*(r<0? -1: 1);
+      r += 2*PI*(r<0? 1: -1);
     if(Math.abs(r) > 1)
       r = (r<0? -1: 1);
     Vector2D[] wheels = getPreportionalWheelPower(eF.add(botSpeed.scale(-d)), r, rot); // wheel power

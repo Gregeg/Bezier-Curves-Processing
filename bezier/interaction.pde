@@ -137,13 +137,30 @@ void keyPressed() {
         commandRight = 0;
       }else
         typing += key;
-      
     }
     if(commandPosBox && (key == 'c' || key == 'C')){
         addState();
         setCommandT(commT);
         commandPosBox = false;
         keyPrevPressed = true;
+    }
+    if(waitPointBox){
+      if(key == '\n'){
+        addWaitPoint(Double.parseDouble(typing.trim()));
+        typing = "";
+        waitPointBox = false;
+        waitPointPosBox = true;
+        waitT = 0;
+        waitLeft = 0; 
+        waitRight = 0;
+      }else
+        typing += key;
+    }
+    if(waitPointPosBox && (key == 'W' || key == 'w')){
+      addState();
+      setWaitPointT(waitT);
+      waitPointPosBox = false;
+      keyPrevPressed = true;
     }
     if (keyCode == BACKSPACE) {
       if (typing.length() <= 2)

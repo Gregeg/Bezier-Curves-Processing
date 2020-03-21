@@ -10,6 +10,7 @@ void draw() {
     text("Create New Layout", 100, 100);
     for (int i = 0; i < saveFileNames.size(); i++)
       text(saveFileNames.get(i), 100, 50*(i+4));
+    startTime = System.currentTimeMillis();
   }else{
     simpleMode = io.get(0).state();
     textFont(defaultFont);
@@ -35,24 +36,54 @@ void draw() {
       pointInd = 0;
     if (allPoints.size() > 0) {
       BezierPoint[] points = allPoints.get(pointInd);
-      for (int i = 0; i < allPoints.size(); i++) {
-        if (allPoints.get(i).length >= 2) {
-          BezierFunc func = new BezierFunc(allPoints.get(i));
-          
+      double time = ((double)(curTime - startTime))*speed/1000000;
+      int i = (int)time;
+      if(((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time == allPoints.size()){
+          time = ((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size())/1000;
+          startTime = curTime;
+          waitInd = 0;
+          i = 0;
+      }
+      if (allPoints.get(i).length >= 2) {
+        BezierFunc func = new BezierFunc(allPoints.get(i));
+        for(int j = 0; j < allPoints.size(); j++){
           strokeWeight(2);
+          BezierFunc func2 = new BezierFunc(allPoints.get(j));
           for (int x = 0; x < 1000; x++) {
-            Vector2D pos = func.getPos(((float)x)/1000);
+            Vector2D pos = func2.getPos(((float)x)/1000);
             point((float)pos.x, (float)pos.y);
           }
           strokeWeight(14);
-          if(commandPosBox && (int)commT == i){
+          if(commandPosBox && (int)commT == j){
             stroke(0, 255, 255);
-            Vector2D pos = func.getPos(commT-i);
+            Vector2D pos = func2.getPos(commT-j);
             point((float)pos.x, (float)pos.y);
             stroke(0, 0, 0);
           }
-          strokeWeight(10);
-          Vector2D pos = func.getPos((((double)(curTime - startTime)*speed/1000)%1000)/1000);
+          if(waitPointPosBox && (int)waitT == j){
+            stroke(255, 255, 255);
+            Vector2D pos = func2.getPos(waitT-j);
+            point((float)pos.x, (float)pos.y);
+            stroke(0, 0, 0);
+          }
+        }
+        strokeWeight(10);
+        if(waitPoints.size() != 0 && waitInd < waitPoints.size()){
+          if(startWaitTime == -1){
+            if(waitPoints.get(waitInd).getT() < time){
+              startWaitTime = curTime; //<>//
+            }
+          }else{
+            if(startWaitTime + waitPoints.get(waitInd).getDuration() > curTime){
+              startTime = curTime - (long)(waitPoints.get(waitInd).getT()/speed*1000000);
+            }else{
+              startWaitTime = -1;
+              waitInd++;
+            }
+          }
+        }
+        if(i == (int)time){
+          Vector2D pos = func.getPos(time-i);
           if(simulation){
             Double rot;
             if((curTime-startTime) >= ((double)allPoints.size()*1000000)/speed){
@@ -63,32 +94,30 @@ void draw() {
               if(rot == null)
                 rot = 0d;
             }else
-              rot = getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i);
-            if(i == (int)(((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size()))/1000){
-              point((float)pos.x, (float)pos.y);
-              robot.setTargetPos(getFeetCoor(pos));
-              robot.setTargetRot(rot);
-            }
+              rot = getRotation(time);
+            point((float)pos.x, (float)pos.y);
+            robot.setTargetPos(getFeetCoor(pos));
+            robot.setTargetRot(rot);
             robot.periodic();
           }else
-            if(!commandPosBox)
-              drawBot(pos, getRotation((((double)(curTime - startTime)*speed/1000)%1000)/1000+i) + Math.PI/2);
+            if(!commandPosBox && !waitPointPosBox)
+               drawBot(pos, getRotation(time) + Math.PI/2);
         }
       }
       stroke(0, 200, 0);
       Vector2D prevPt = points[0].getPos(0);
       strokeWeight(1);
       if (points.length > 2)
-        for (int i = 0; i < points.length; i++) {
-          Vector2D pt = points[i].getPos(0);
+        for (int d = 0; d < points.length; d++) {
+          Vector2D pt = points[d].getPos(0);
           line((float)prevPt.x, (float)prevPt.y, (float)pt.x, (float)pt.y);
           prevPt = pt;
         }
       prevPt = points[0].getPos(0);
       stroke(0, 0, 255);
       strokeWeight(6);
-      for (int i = 0; i < points.length; i++) {
-        Vector2D pt = points[i].getPos(0);
+      for (int d = 0; d < points.length; d++) {
+        Vector2D pt = points[d].getPos(0);
         point((float)pt.x, (float)pt.y);
         prevPt = pt;
       }
@@ -96,13 +125,27 @@ void draw() {
       stroke(0, 255, 255);
       fill(0, 255, 255);
       if(!commandPosBox)
-        for(int i = 0; i < commands.size(); i++){
-          Command c = commands.get(i);
+        for(int d = 0; d < commands.size(); d++){
+          Command c = commands.get(d);
           BezierFunc func = new BezierFunc(allPoints.get((int)c.getT()));
           Vector2D pos = func.getPos(c.getT()%1);
           point((float)pos.x, (float)pos.y);
+          textSize(14);
           text(c.getName(), (float)pos.x + 15, (float)pos.y);
         }
+      stroke(255, 255, 255);
+      fill(255, 255, 255);
+      if(!waitPointPosBox){
+        for(int d = 0; d < waitPoints.size(); d++){
+          WaitPoint wp = waitPoints.get(d);
+          BezierFunc func = new BezierFunc(allPoints.get((int)wp.getT()));
+          Vector2D pos = func.getPos(wp.getT()%1);
+          point((float)pos.x, (float)pos.y);
+          textSize(14);
+          text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15, (float)pos.y);
+        }
+      }
+      textSize(12);
       stroke(255, 0, 0);
       strokeWeight(2);
       for (int p = 0; p < allPoints.size(); p++) {
@@ -259,8 +302,22 @@ void draw() {
       fill(0, 0, 0);
       text("use arrow keys and press \"C\" for position" + typing, 10, 17);
     }
+    if(waitPointBox){
+      fill(255, 255, 255);
+      strokeWeight(1);
+      rect(0, 0, 300, 25);
+      fill(0, 0, 0);
+      text("Length(milliseconds): " + typing, 10, 17);
+    }
+    if(waitPointPosBox){
+      fill(255, 255, 255);
+      strokeWeight(1);
+      rect(0, 0, 300, 25);
+      fill(0, 0, 0);
+      text("use arrow keys and press \"W\" for position: " + typing, 10, 17);
+    }
     if (keyPressed || pushed) {
-      if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox) {
+      if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox) {
         if(pushed)
           pushed = false;
         if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT)) {
@@ -304,7 +361,13 @@ void draw() {
                   commands.remove(i);
                   i--;
                 }
-                changeAllCommandT(-1);
+              changeAllCommandT(-1);
+              for(int i = 0; i < waitPoints.size(); i++)
+                if((int)waitPoints.get(i).getT() == 0){
+                  waitPoints.remove(i);
+                  i--;
+                }
+              changeAllWaitPointT(-1);                         // TODO: allow deletion of nearest wait point to mouse, and finish wait point boxes and waitPointPosBox controls
             } else if (pointInd == allPoints.size()-1) {
               allPoints.remove(pointInd);
               for(int i = 0; i < commands.size(); i++)
@@ -336,7 +399,20 @@ void draw() {
                 lowIndComm = i;
               }
             }
-            if(lowIndComm != -1 && lowDistComm < lowDist)
+            double lowDistWait = Double.MAX_VALUE;
+            int lowIndWait = -1;
+            for(int i = 0; i < waitPoints.size(); i++){
+              double t = waitPoints.get(i).getT();
+              BezierFunc func = new BezierFunc(allPoints.get((int)t));
+              double dist = mouse.add(func.getPos(t%1).scale(-1)).getMagnitude();
+              if(dist < lowDistWait){
+                lowDistWait = dist;
+                lowIndWait = i;
+              }
+            }
+            if(lowIndWait != -1 && lowDistWait < lowDist && lowDistWait < lowDistComm)
+              waitPoints.remove(lowIndWait);
+            else if(lowIndComm != -1 && lowDistComm < lowDist && lowDistComm < lowDistWait)
               commands.remove(lowIndComm);
             else{
               if (lowInd == 1)
@@ -416,6 +492,10 @@ void draw() {
           commandBox = true;
           typing = "";
           keyPrevPressed = true;
+        }else if(allPoints.get(pointInd).length > 1 && (key == 'w' || key == 'W' || io.get(9).state())){
+          waitPointBox = true;
+          typing = "";
+          keyPrevPressed = true;
         }
       }
       if(commandPosBox){
@@ -443,10 +523,37 @@ void draw() {
             commandLeft = 0;
           }
         }
+        if(waitPointPosBox){
+          if(keyCode == LEFT){
+            if(waitLeft > 75)
+              waitT -= .04;
+            else if(waitLeft > 45)
+              waitT -= .02;
+            else
+              waitT -= .0025;
+            if(waitT < 0)
+              waitT = 0;
+            waitLeft++;
+            waitRight = 0;
+          }else if(keyCode == RIGHT){
+            if(waitRight > 75)
+              waitT += .04;
+            else if(waitRight > 45)
+              waitT += .02;
+            else
+              waitT += .0025;
+            if(waitT >= allPoints.size())
+              waitT = allPoints.size() - .0000001;
+            waitRight++;
+            waitLeft = 0;
+          }
+        }
     } else {
       keyPrevPressed = false;
       commandLeft = 0;
       commandRight = 0;
+      waitLeft = 0;
+      waitRight = 0;
     }
     paintIO();
   }

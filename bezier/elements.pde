@@ -1,5 +1,7 @@
 ArrayList<Command> commands = new ArrayList<Command>();
+ArrayList<WaitPoint> waitPoints = new ArrayList<WaitPoint>();
 ArrayList<PointState> states = new ArrayList<PointState>();
+
 
 void drawBot(Vector2D pos, double rot) {
   pushMatrix();
@@ -21,7 +23,13 @@ void addCommand(String c){
       c = c.substring(0, c.length()-5);
   commands.add(new Command(c));
 }
-
+void addWaitPoint(double duration){
+  waitPoints.add(new WaitPoint(duration));
+  Collections.sort(waitPoints);
+}
+void setWaitPointT(double t){
+  waitPoints.get(waitPoints.size()-1).setT(t);
+}
 void setCommandT(double t){
   commands.get(commands.size()-1).setT(t);
 }
@@ -49,17 +57,43 @@ class Command implements Comparable{
     return (v > 0? 1: (v == 0? 0: -1));
   }
 }
+class WaitPoint implements Comparable{
+  private double t, duration;
+  
+  WaitPoint(double duration, double t){
+    this.t = t;
+    this.duration = duration;
+  }
+  WaitPoint(double duration){
+    this.duration = duration;
+  }
+  double getT(){return t;}
+  double getDuration(){return duration;}
+  
+  void setT(double t){this.t = t;}
+  void setDuration(double d){duration = d;}
+  
+  public int compareTo(Object o){
+    double v = t-((WaitPoint)o).getT();
+    return (v > 0? 1: (v == 0? 0: -1));
+  }
+}
 
 void changeAllCommandT(double v){
   for(int i = 0; i < commands.size(); i++)
     commands.get(i).setT(commands.get(i).getT() + v);
 }
+void changeAllWaitPointT(double v){
+  for(int i = 0; i < waitPoints.size(); i++)
+    waitPoints.get(i).setT(waitPoints.get(i).getT() + v);
+}
 
 class PointState {
   ArrayList<BezierPoint[]> allPts;
   ArrayList<Command> comms;
+  ArrayList<WaitPoint> wp;
   
-  PointState(ArrayList<BezierPoint[]> aPts, ArrayList<Command> comms){
+  PointState(ArrayList<BezierPoint[]> aPts, ArrayList<Command> comms, ArrayList<WaitPoint> wp){
     allPts = new ArrayList<BezierPoint[]>(aPts);
     for(int i = 0; i < allPts.size(); i++){
       BezierPoint[] bp = new BezierPoint[aPts.get(i).length];
@@ -67,14 +101,16 @@ class PointState {
       allPts.set(i, bp);
     }
     this.comms = new ArrayList<Command>(comms);
+    this.wp = new ArrayList<WaitPoint>(wp);
   }
   
   ArrayList<BezierPoint[]> getAllPts(){return allPts;}
   ArrayList<Command> getComms(){return comms;}
+  ArrayList<WaitPoint> getWaitPoints(){return wp;}
 }
 
 void addState(){
-  states.add(new PointState(allPoints, commands));
+  states.add(new PointState(allPoints, commands, waitPoints));
 }
 
 void restoreState(){
@@ -82,6 +118,7 @@ void restoreState(){
     PointState ps = states.remove(states.size()-1);
     allPoints = ps.getAllPts();
     commands = ps.getComms();
+    waitPoints = ps.getWaitPoints();
     if(allPoints.size() == 0)
       pointInd = 0;
     else if(pointInd == allPoints.size())

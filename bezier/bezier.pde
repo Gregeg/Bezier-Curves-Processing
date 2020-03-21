@@ -10,9 +10,11 @@ int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
 float botRotScale;
 boolean saveBox = false;
+boolean waitPointBox = false;
+boolean waitPointPosBox = false;
+double waitT;
 boolean pidSaveBox = false;
-int commandRight;
-int commandLeft;
+int commandRight, commandLeft, waitRight, waitLeft;
 boolean rotationBox = false;
 boolean commandPosBox = false;
 HashMap<BezierPoint, Double> rotation = new HashMap<BezierPoint, Double>();   // input last point of curve, returns bot rotation in RADIANS at that point
@@ -25,6 +27,8 @@ Character pidChar = null;
 String typing = "";
 float botSimSize = 2.5;
 long startTime;
+int waitInd = 0;
+long startWaitTime = -1;
 float lengthOfArrows = 30;
 float arrowSize = 10;
 boolean savedDataBox = false;
@@ -56,9 +60,10 @@ void setup() {
   new YitButton("Specify Point", "(a)");
   new YitButton("Undo (Ctrl+Z)");
   new YitButton("Rotate (r)");
-  new YitButton("Command (c)");
+  new YitButton("Command ", "Point (c)");
   new YitButton("Simulation", "(Space)");
   new YitButton("PID Values (p)");
+  new YitButton("Wait Point (w)");
   
   size(1200, 700);
   frameRate(60);

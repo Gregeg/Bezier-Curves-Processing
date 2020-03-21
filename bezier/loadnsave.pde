@@ -16,17 +16,34 @@ void readSaveData() {
         line = sc.nextLine();
         int ind2;
         if(!line.equals("R")){
-          do {
-            ind = line.indexOf(',');
-            ind2 = line.indexOf(',', ind+1);
-            if (ind2 == -1) {
-              commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1))));
-            } else {
-              commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1, ind2))));
-              line = line.substring(ind2+1);
-            }
-          } while (ind2 != -1);
-          sc.nextLine();
+          if(!line.equals("W")){
+            do {
+              ind = line.indexOf(',');
+              ind2 = line.indexOf(',', ind+1);
+              if (ind2 == -1) {
+                commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1))));
+              } else {
+                commands.add(new Command(line.substring(0, ind), Double.parseDouble(line.substring(ind+1, ind2))));
+                line = line.substring(ind2+1);
+              }
+            } while (ind2 != -1);
+            line = sc.nextLine();
+          }
+          if(line.equals("W")){
+            line = sc.nextLine();
+            do {
+              ind = line.indexOf(',');
+              ind2 = line.indexOf(',', ind+1);
+              if (ind2 == -1) {
+                waitPoints.add(new WaitPoint(Double.parseDouble(line.substring(0, ind)), Double.parseDouble(line.substring(ind+1))));
+              } else {
+                waitPoints.add(new WaitPoint(Double.parseDouble(line.substring(0, ind)), Double.parseDouble(line.substring(ind+1, ind2))));
+                line = line.substring(ind2+1);
+              }
+            } while (ind2 != -1);
+            Collections.sort(waitPoints);
+          }
+          line = sc.nextLine();
           ind = 0;
         }
       } else if (positions) {
@@ -75,6 +92,13 @@ void saveData() {
     line += commands.get(i).getName() + "," + commands.get(i).getT() + ",";
   if(commands.size() != 0)
     greg.write(line.substring(0, line.length()-1) + "\n");
+  line = "";
+  if(waitPoints.size() != 0){
+    line = "W\n";
+    for(int i = 0; i < waitPoints.size(); i++)
+      line += waitPoints.get(i).getDuration() + "," + waitPoints.get(i).getT() + ",";
+    greg.write(line.substring(0, line.length()-1) + "\n");
+  }
   greg.write("R\n");
   for (int i = 0; i < allPoints.size(); i++) {
     BezierPoint[] pts = allPoints.get(i);
