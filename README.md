@@ -1,7 +1,10 @@
 # Manual
 ### Click to create points
- - first two points sets the endpoints of the curve
- - next points set control points
+ - Easy mode enabled
+   - click to add new curves
+ - Advanced mode
+   - first two points sets the endpoints of the curve
+   - points made afterwords set control points
 
 ### Create coordinate specific point
  - press "a" then type the coordinates of the point EX:( Add point(<x,y>): 100, 50) or (Add point(<x,y>): 69,420)
@@ -16,6 +19,10 @@
 
 ### Editing speed
  - hold "UP" and "DOWN arrow keys
+
+### Adding Wait Points
+ - press "w" and type the duration of the wait in milliseconds(can be a decimal) and press "ENTER"
+ - use the left/right arrow keys to move your control dot along the curve, and press "w" to lock it in place
 
 ### Adding new curves
  - press "n" to add curve in front, and click to set second curve endpoint
@@ -45,9 +52,10 @@
  - press "C" and type the name of your command class and press "ENTER" EX: for ShootBall.java type `ShootBall`
  - use the left/right arrow keys to move your control dot along the curve, and press "C" to lock it in place
  - the robot will run the `execute()` method when it reaches this point
- 
+
 ### Robot PID Simulation
  - press "SPACE" to run a simulation of the robot following the position
+ - robot with a red highlight indicates it is skidding on the surface
  - editing robot values
    - press "p" to edit pid constants
    - change data on specific robot in data/robot.stats
