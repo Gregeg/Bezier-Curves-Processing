@@ -239,6 +239,7 @@ void mouseReleased() {
       if (mouseSpecify != null)
         mouse = mouseSpecify;
       if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+        moved = true;
         if(simulation)
           robot.resetTime();
         if(!simpleMode)

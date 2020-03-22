@@ -1,5 +1,3 @@
-
-
 public class BezierPoint implements BezierUnit{
 	public Vector2D pos;
 	

@@ -30,7 +30,9 @@ public class Vector2D {
 	public double componentSum() {
 		return x+y;
 	}
-	// 0 at vector<1,0> , increases counter-clockwise, range(-pi, pi);
+	/**
+	 * @return 0 at vector<1,0> , increases counter-clockwise, range(-pi, pi)
+	 */
 	public double getAngleRad() {
 		return Math.atan2(y, x);
 	}

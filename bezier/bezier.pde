@@ -1,7 +1,7 @@
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.Collections;
-
+PGraphics gLine;
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg, sOff, sOn, botrot,bOn,bOff;
@@ -42,7 +42,7 @@ boolean saveNewDataBox = false;
 boolean skidding = false;
 String currentFileName = null;
 boolean simpleMode = true;
-boolean moved = false;
+boolean moved = true;
 boolean pidBox = false;
 ArrayList<String> saveFileNames = new ArrayList<String>();
 double botWidth, botHeight, botWeight, botMaxAccel, botWheelRadius, botDriveGearRatio, drag, fric, moment2, angResistance;
@@ -57,6 +57,7 @@ void setup() {
   botrot = loadImage("botrot.png");
   bOn = loadImage("button.png");
   bOff = loadImage("buttoff.png");
+  gLine = createGraphics(1200, 700);
   new YitSwitch("Simple");            // ignore it, IDE is just stupid
   new YitButton("Save (s)");  
   new YitButton("Export (e)");
@@ -67,7 +68,6 @@ void setup() {
   new YitButton("Simulation", "(Space)");
   new YitButton("PID Values (p)");
   new YitButton("Wait Point (w)");
-  
   size(1200, 700);
   frameRate(60);
   bigFont = createFont("Arial", 20);

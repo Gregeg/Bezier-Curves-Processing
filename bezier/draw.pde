@@ -49,14 +49,25 @@ void draw() {
       }
       if (allPoints.get(i).length >= 2) {
         BezierFunc func = new BezierFunc(allPoints.get(i));
+        boolean movedG = moved;
         for(int j = 0; j < allPoints.size(); j++){
           if(allPoints.get(j).length > 1){
-            strokeWeight(2);
             BezierFunc func2 = new BezierFunc(allPoints.get(j));
-            for (int x = 0; x < 1000; x++) {
-              Vector2D pos = func2.getPos(((float)x)/1000);
-              point((float)pos.x, (float)pos.y);
+            strokeWeight(2);
+            if(moved){
+              gLine.beginDraw();
+              if(movedG){
+                gLine.clear();
+                movedG = false;
+              }
+              gLine.strokeWeight(2);
+              for (int x = 0; x < 1000; x++) {
+                Vector2D pos = func2.getPos(((float)x)/1000);
+                gLine.point((float)pos.x, (float)pos.y);
+              }
+              gLine.endDraw();
             }
+            image(gLine, 0, 0);
             strokeWeight(14);
             if(commandPosBox && (int)commT == j){
               stroke(0, 255, 255);
@@ -373,6 +384,7 @@ void draw() {
           }
           keyPrevPressed = true;
         }else if (key == DELETE) {
+          moved = true;
           BezierPoint[] points = allPoints.get(pointInd);
           // deletes nearest point, if start or end and deletes point with point length of 3, delete entire curve segment,
           // cannot delete middle segment point if segment has 3 points
@@ -494,6 +506,7 @@ void draw() {
         } else if (key == 'a' || key == 'A' || io.get(3).state()) // specify point
           enterPtLoc = true;
         else if (key == 26 || io.get(4).state()){       // UNDO
+          moved = true;
           restoreState();
           keyPrevPressed = true;
         } else if ((key == 'r' || key == 'R' || io.get(5).state()) && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){  // rotate
