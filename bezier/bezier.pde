@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.util.function.Function;
 import java.util.Collections;
 PGraphics gLine;
+PGraphics bgg;
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg, sOff, sOn, botrot,bOn,bOff;
@@ -58,6 +59,23 @@ void setup() {
   bOn = loadImage("button.png");
   bOff = loadImage("buttoff.png");
   gLine = createGraphics(1200, 700);
+  bgg = createGraphics(1200, 700);
+  bgg.beginDraw();
+  bgg.image(bg, 0, 0);
+  strokeWeight(1);
+  for (int i = 0; i < 45; i++) {
+    if (i%5 == 0) {
+      bgg.stroke(255, 0, 255, 75);
+      bgg.strokeWeight(2);
+    } else {
+      bgg.stroke(255, 255, 0, 75);
+      bgg.strokeWeight(1);
+    }
+    Vector2D pt = getPxlCoor(i, i);
+    bgg.line(0, (float)pt.y, 1200, (float)pt.y);
+    bgg.line((float)pt.x, 0, (float)pt.x, 700);
+  }
+  bgg.endDraw();
   new YitSwitch("Simple");            // ignore it, IDE is just stupid
   new YitButton("Save (s)");  
   new YitButton("Export (e)");

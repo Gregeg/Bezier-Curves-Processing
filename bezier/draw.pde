@@ -16,20 +16,7 @@ void draw() {
     textFont(defaultFont);
     Vector2D mouse = mouse();
     long curTime = System.currentTimeMillis();
-    image(bg, 0, 0);
-    strokeWeight(1);
-    for (int i = 0; i < 45; i++) {
-      if (i%5 == 0) {
-        stroke(255, 0, 255, 75);
-        strokeWeight(2);
-      } else {
-        stroke(255, 255, 0, 75);
-        strokeWeight(1);
-      }
-      Vector2D pt = getPxlCoor(i, i);
-      line(0, (float)pt.y, 1200, (float)pt.y);
-      line((float)pt.x, 0, (float)pt.x, 700);
-    }
+    image(bgg, 0, 0);
     stroke(0, 0, 0);
     if(pointInd < 0)
       pointInd = 0;
