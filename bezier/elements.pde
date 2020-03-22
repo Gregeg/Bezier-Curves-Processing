@@ -116,9 +116,12 @@ void addState(){
 void restoreState(){
   if(states.size() != 0){
     PointState ps = states.remove(states.size()-1);
+    boolean c = allPoints.size() > 1 && allPoints.get(0).length == 3 && ps.getAllPts().get(0).length == 1;
     allPoints = ps.getAllPts();
     commands = ps.getComms();
     waitPoints = ps.getWaitPoints();
+    if(c)
+      changeAllWaitPointT(-1);
     if(allPoints.size() == 0)
       pointInd = 0;
     else if(pointInd == allPoints.size())

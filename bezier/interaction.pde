@@ -151,9 +151,7 @@ void keyPressed() {
         typing = "";
         commandBox = false;
         commandPosBox = true;
-        commT = 0;
-        commandLeft = 0;
-        commandRight = 0;
+        commT = 0d;
       }else
         typing += key;
     }
@@ -169,9 +167,7 @@ void keyPressed() {
         typing = "";
         waitPointBox = false;
         waitPointPosBox = true;
-        waitT = 0;
-        waitLeft = 0; 
-        waitRight = 0;
+        waitT = 0d;
       }else
         typing += key;
     }
@@ -214,7 +210,6 @@ void mouseReleased() {
   if (rotationBox) {
     BezierPoint[] points = allPoints.get(pointInd);
     BezierPoint point = points[points.length-1];
-    
     if(rotation.get(point) == null)
       rotation.put(point, mouse().add(point.getPos(0).scale(-1)).getAngleRad());
     else
@@ -240,6 +235,7 @@ void mouseReleased() {
         mouse = mouseSpecify;
       if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
         moved = true;
+        inc = false;
         if(simulation)
           robot.resetTime();
         if(!simpleMode)
@@ -258,6 +254,7 @@ void mouseReleased() {
                   temp[1] = new BezierPoint(mouse);
                   allPoints.set(0, temp);
                 } else {
+                  changeAllWaitPointT(1);
                   BezierPoint[] nextPts = allPoints.get(pointInd+1);
                   BezierPoint[] temp = new BezierPoint[3];
                   temp[2] = points[0];
@@ -352,4 +349,30 @@ void mouseReleased() {
       mouseSpecify = null;
     }
   }
+}
+Double moveDot(Double t){ //changes double based on user input
+  if(keyCode == LEFT){
+    if(waitLeft > 75)
+      t -= .04;
+    else if(waitLeft > 45)
+      t -= .02;
+    else
+      t -= .0025;
+    if(t < 0)
+      t = 0d;
+    waitLeft++;
+    waitRight = 0;
+  }else if(keyCode == RIGHT){
+    if(waitRight > 75)
+      t += .04;
+    else if(waitRight > 45)
+      t += .02;
+    else
+      t += .0025;
+    if(t >= allPoints.size())
+      t = allPoints.size() - .0000001d;
+    waitRight++;
+    waitLeft = 0;
+  }
+  return t;
 }

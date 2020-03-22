@@ -56,13 +56,13 @@ void draw() {
             }
             image(gLine, 0, 0);
             strokeWeight(14);
-            if(commandPosBox && (int)commT == j){
+            if(commandPosBox && commT.intValue() == j){
               stroke(0, 255, 255);
               Vector2D pos = func2.getPos(commT-j);
               point((float)pos.x, (float)pos.y);
               stroke(0, 0, 0);
             }
-            if(waitPointPosBox && (int)waitT == j){
+            if(waitPointPosBox && waitT.intValue() == j){
               stroke(255, 255, 255);
               Vector2D pos = func2.getPos(waitT-j);
               point((float)pos.x, (float)pos.y);
@@ -77,7 +77,7 @@ void draw() {
           Vector2D p = bp.getPos(0);
           robot.setTargetPos(getFeetCoor(p));
           Double rot = rotation.get(bp);
-          robot.setTargetRot((rot == null? PI/2: rot));
+          robot.setTargetRot((rot == null? 0: rot));
           robot.periodic();
           point((float)p.x, (float)p.y);
         }else{
@@ -526,60 +526,12 @@ void draw() {
           keyPrevPressed = true;
         }
       }
-      if(commandPosBox){
-          if(keyCode == LEFT){
-            if(commandLeft > 75)
-              commT -= .04;
-            else if(commandLeft > 45)
-              commT -= .02;
-            else
-              commT -= .0025;
-            if(commT < 0)
-              commT = 0;
-            commandLeft++;
-            commandRight = 0;
-          }else if(keyCode == RIGHT){
-            if(commandRight > 75)
-              commT += .04;
-            else if(commandRight > 45)
-              commT += .02;
-            else
-              commT += .0025;
-            if(commT >= allPoints.size())
-              commT = allPoints.size() - .0000001;
-            commandRight++;
-            commandLeft = 0;
-          }
-        }
-        if(waitPointPosBox){
-          if(keyCode == LEFT){
-            if(waitLeft > 75)
-              waitT -= .04;
-            else if(waitLeft > 45)
-              waitT -= .02;
-            else
-              waitT -= .0025;
-            if(waitT < 0)
-              waitT = 0;
-            waitLeft++;
-            waitRight = 0;
-          }else if(keyCode == RIGHT){
-            if(waitRight > 75)
-              waitT += .04;
-            else if(waitRight > 45)
-              waitT += .02;
-            else
-              waitT += .0025;
-            if(waitT >= allPoints.size())
-              waitT = allPoints.size() - .0000001;
-            waitRight++;
-            waitLeft = 0;
-          }
-        }
+      if(commandPosBox)
+          commT = moveDot(commT);
+        if(waitPointPosBox)
+          waitT = moveDot(waitT);
     } else {
       keyPrevPressed = false;
-      commandLeft = 0;
-      commandRight = 0;
       waitLeft = 0;
       waitRight = 0;
     }
