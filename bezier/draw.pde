@@ -16,7 +16,6 @@ void draw() {
     textFont(defaultFont);
     Vector2D mouse = mouse();
     long curTime = System.currentTimeMillis();
-    //background(204);
     image(bg, 0, 0);
     strokeWeight(1);
     for (int i = 0; i < 45; i++) {
@@ -38,11 +37,12 @@ void draw() {
       BezierPoint[] points = allPoints.get(pointInd);
       double time = ((double)(curTime - startTime))*speed/1000000;
       int i = (int)time;
-      if(((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time == allPoints.size()){
+      if((((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time == allPoints.size())){
           time = ((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size())/1000;
           startTime = curTime;
           waitInd = 0;
           i = 0;
+          simDone = true;
       }
       if (allPoints.get(i).length >= 2) {
         BezierFunc func = new BezierFunc(allPoints.get(i));
@@ -68,40 +68,58 @@ void draw() {
           }
         }
         strokeWeight(10);
-        if(waitPoints.size() != 0 && waitInd < waitPoints.size()){
-          if(startWaitTime == -1){
-            if(waitPoints.get(waitInd).getT() < time){
-              startWaitTime = curTime; //<>//
-            }
-          }else{
-            if(startWaitTime + waitPoints.get(waitInd).getDuration() > curTime){
-              startTime = curTime - (long)(waitPoints.get(waitInd).getT()/speed*1000000);
+        if(simulation && simDone){
+          BezierPoint[] pts = allPoints.get(allPoints.size()-1);
+          BezierPoint bp = pts[pts.length-1];
+          Vector2D p = bp.getPos(0);
+          robot.setTargetPos(getFeetCoor(p));
+          Double rot = rotation.get(bp);
+          robot.setTargetRot((rot == null? PI/2: rot));
+          robot.periodic();
+          point((float)p.x, (float)p.y);
+        }else{
+          if(waitPoints.size() != 0 && waitInd < waitPoints.size()){
+            WaitPoint wp = waitPoints.get(waitInd);
+            if(startWaitTime == -1){
+              if(wp.getT() < time){
+                startWaitTime = curTime;
+              }
             }else{
-              startWaitTime = -1;
-              waitInd++;
+              double t = wp.getT();
+              startTime = curTime - (long)(t/speed*1000000);
+              if(startWaitTime + wp.getDuration() > curTime){
+                if(!commandPosBox && !waitPointPosBox){
+                  Vector2D p = func.getPos(t-i);
+                  if(simulation){
+                    robot.setTargetPos(getFeetCoor(p));
+                    robot.setTargetRot(getRotation(t));
+                    robot.periodic();
+                    point((float)p.x, (float)p.y);
+                  }else
+                    drawBot(p, getRotation(t) + Math.PI/2);
+                }
+                wait = true;
+              }else{
+                startTime = curTime - (long)(t/speed*1000000);
+                time = ((double)(curTime - startTime))*speed/1000000;
+                startWaitTime = -1;
+                waitInd++;
+                wait = false;
+              }
             }
           }
-        }
-        if(i == (int)time){
-          Vector2D pos = func.getPos(time-i);
-          if(simulation){
-            Double rot;
-            if((curTime-startTime) >= ((double)allPoints.size()*1000000)/speed){
-              BezierPoint[] pts = allPoints.get(allPoints.size()-1);
-              BezierPoint p = pts[pts.length-1];
-              pos = p.getPos(0);
-              rot = rotation.get(p);
-              if(rot == null)
-                rot = 0d;
+          if(!wait){
+            Vector2D pos = func.getPos(time-i);
+            if(simulation){
+              double rot = getRotation(time);
+              point((float)pos.x, (float)pos.y);
+              robot.setTargetPos(getFeetCoor(pos));
+              robot.setTargetRot(rot);
+              robot.periodic();
             }else
-              rot = getRotation(time);
-            point((float)pos.x, (float)pos.y);
-            robot.setTargetPos(getFeetCoor(pos));
-            robot.setTargetRot(rot);
-            robot.periodic();
-          }else
-            if(!commandPosBox && !waitPointPosBox)
-               drawBot(pos, getRotation(time) + Math.PI/2);
+              if(!commandPosBox && !waitPointPosBox)
+                 drawBot(pos, getRotation(time) + Math.PI/2);
+          }
         }
       }
       stroke(0, 200, 0);
@@ -367,7 +385,7 @@ void draw() {
                   waitPoints.remove(i);
                   i--;
                 }
-              changeAllWaitPointT(-1);                         // TODO: allow deletion of nearest wait point to mouse, and finish wait point boxes and waitPointPosBox controls
+              changeAllWaitPointT(-1);
             } else if (pointInd == allPoints.size()-1) {
               allPoints.remove(pointInd);
               for(int i = 0; i < commands.size(); i++)
@@ -478,9 +496,13 @@ void draw() {
         }else if((key == ' ' || io.get(7).state()) && allPoints.get(0).length > 1){
           simulation = !simulation;
           if(simulation){
+            simDone = false;
+            startWaitTime = -1;
             robot.setPos(getFeetCoor(allPoints.get(0)[0].getPos(0)));
             robot.reset();
             startTime = System.currentTimeMillis();
+            waitInd = 0;
+            wait = false;
           }
           keyPrevPressed = true;
         }else if(key == 'p' || key == 'P' || io.get(8).state()){ // pid values

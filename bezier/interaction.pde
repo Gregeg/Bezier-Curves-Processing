@@ -39,11 +39,30 @@ void keyPressed() {
         out = out.substring(0, out.length() - 1);
         out += "};\n\tprivate static double[] getPoints0(){\n\t\tdouble[] d = {";
         int aLevel = 0;
+        int waitPointInd = 0;
+        int totalPoints = 0;
         for (int i = 0; i < allPoints.size()*amt; i++) {
           int ptInd = i/amt;
-          Vector2D pos = getFeetCoor(new BezierFunc(allPoints.get(ptInd)).getPos(((double)i%amt)/amt));
+          double time = ((double)i%amt)/amt;
+          BezierFunc func = new BezierFunc(allPoints.get(ptInd));
+          if(waitPointInd != waitPoints.size() && time >= waitPoints.get(waitPointInd).getT()){
+            int mp = (int)(((double)speed)*amt*waitPoints.get(waitPointInd).getDuration()/1000000);
+            Vector2D p = getFeetCoor(func.getPos(waitPoints.get(waitPointInd).getT()));
+            for(int w = 0; w < mp; w++){
+              out += p.x + ", " + p.y + ", " + getRotation(((double)i%amt)/amt) + ", ";
+              totalPoints++;
+              if ((totalPoints+1)%1000 == 0) {
+                aLevel++;
+                out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tprivate static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
+              }
+              totalPoints++;
+            }
+            waitPointInd++;
+          }
+          Vector2D pos = getFeetCoor(new BezierFunc(allPoints.get(ptInd)).getPos(time));
           out += pos.x + ", " + pos.y + ", " + getRotation(((double)i%amt)/amt) + ", ";
-          if ((i+1)%1000 == 0) {
+          totalPoints++;
+          if ((totalPoints+1)%1000 == 0) {
             aLevel++;
             out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tprivate static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
           }
