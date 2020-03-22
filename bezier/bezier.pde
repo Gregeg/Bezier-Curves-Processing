@@ -13,6 +13,7 @@ boolean saveBox = false;
 boolean waitPointBox = false;
 boolean waitPointPosBox = false;
 double waitT;
+boolean inc;
 boolean pidSaveBox = false;
 int commandRight, commandLeft, waitRight, waitLeft;
 boolean rotationBox = false;

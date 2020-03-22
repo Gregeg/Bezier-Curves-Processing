@@ -36,35 +36,40 @@ void draw() {
     if (allPoints.size() > 0) {
       BezierPoint[] points = allPoints.get(pointInd);
       double time = ((double)(curTime - startTime))*speed/1000000;
+      if(!inc && allPoints.size() > 1 && allPoints.get(0).length == 1)
+        inc = true;
+      if(inc) time++;
       int i = (int)time;
       if((((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time == allPoints.size())){
-          time = ((double)(curTime - startTime)*speed/1000)%(1000*allPoints.size())/1000;
           startTime = curTime;
+          time = (inc? 1: 0);
           waitInd = 0;
-          i = 0;
+          i = (inc? 1: 0);
           simDone = true;
       }
       if (allPoints.get(i).length >= 2) {
         BezierFunc func = new BezierFunc(allPoints.get(i));
         for(int j = 0; j < allPoints.size(); j++){
-          strokeWeight(2);
-          BezierFunc func2 = new BezierFunc(allPoints.get(j));
-          for (int x = 0; x < 1000; x++) {
-            Vector2D pos = func2.getPos(((float)x)/1000);
-            point((float)pos.x, (float)pos.y);
-          }
-          strokeWeight(14);
-          if(commandPosBox && (int)commT == j){
-            stroke(0, 255, 255);
-            Vector2D pos = func2.getPos(commT-j);
-            point((float)pos.x, (float)pos.y);
-            stroke(0, 0, 0);
-          }
-          if(waitPointPosBox && (int)waitT == j){
-            stroke(255, 255, 255);
-            Vector2D pos = func2.getPos(waitT-j);
-            point((float)pos.x, (float)pos.y);
-            stroke(0, 0, 0);
+          if(allPoints.get(j).length > 1){
+            strokeWeight(2);
+            BezierFunc func2 = new BezierFunc(allPoints.get(j));
+            for (int x = 0; x < 1000; x++) {
+              Vector2D pos = func2.getPos(((float)x)/1000);
+              point((float)pos.x, (float)pos.y);
+            }
+            strokeWeight(14);
+            if(commandPosBox && (int)commT == j){
+              stroke(0, 255, 255);
+              Vector2D pos = func2.getPos(commT-j);
+              point((float)pos.x, (float)pos.y);
+              stroke(0, 0, 0);
+            }
+            if(waitPointPosBox && (int)waitT == j){
+              stroke(255, 255, 255);
+              Vector2D pos = func2.getPos(waitT-j);
+              point((float)pos.x, (float)pos.y);
+              stroke(0, 0, 0);
+            }
           }
         }
         strokeWeight(10);
@@ -81,7 +86,7 @@ void draw() {
           if(waitPoints.size() != 0 && waitInd < waitPoints.size()){
             WaitPoint wp = waitPoints.get(waitInd);
             if(startWaitTime == -1){
-              if(wp.getT() < time){
+              if(wp.getT()+(inc? 1: 0) < time){
                 startWaitTime = curTime;
               }
             }else{
@@ -89,14 +94,14 @@ void draw() {
               startTime = curTime - (long)(t/speed*1000000);
               if(startWaitTime + wp.getDuration() > curTime){
                 if(!commandPosBox && !waitPointPosBox){
-                  Vector2D p = func.getPos(t-i);
+                  Vector2D p = func.getPos(t-i+(inc? 1: 0));
                   if(simulation){
                     robot.setTargetPos(getFeetCoor(p));
-                    robot.setTargetRot(getRotation(t));
+                    robot.setTargetRot(getRotation(t+(inc? 1: 0)));
                     robot.periodic();
                     point((float)p.x, (float)p.y);
                   }else
-                    drawBot(p, getRotation(t) + Math.PI/2);
+                    drawBot(p, getRotation(t+(inc? 1: 0)) + Math.PI/2);
                 }
                 wait = true;
               }else{
@@ -156,7 +161,7 @@ void draw() {
       if(!waitPointPosBox){
         for(int d = 0; d < waitPoints.size(); d++){
           WaitPoint wp = waitPoints.get(d);
-          BezierFunc func = new BezierFunc(allPoints.get((int)wp.getT()));
+          BezierFunc func = new BezierFunc(allPoints.get((int)wp.getT()+(inc? 1: 0)));
           Vector2D pos = func.getPos(wp.getT()%1);
           point((float)pos.x, (float)pos.y);
           textSize(14);
@@ -339,6 +344,7 @@ void draw() {
         if(pushed)
           pushed = false;
         if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT)) {
+          inc = false;
           if (allPoints.get(pointInd).length > 2) {
             pointInd++;
             if (pointInd == allPoints.size()) {

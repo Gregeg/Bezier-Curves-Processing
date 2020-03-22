@@ -25,10 +25,10 @@ void addCommand(String c){
 }
 void addWaitPoint(double duration){
   waitPoints.add(new WaitPoint(duration));
-  Collections.sort(waitPoints);
 }
 void setWaitPointT(double t){
   waitPoints.get(waitPoints.size()-1).setT(t);
+  Collections.sort(waitPoints);
 }
 void setCommandT(double t){
   commands.get(commands.size()-1).setT(t);
