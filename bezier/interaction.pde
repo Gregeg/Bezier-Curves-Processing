@@ -238,9 +238,27 @@ void mouseReleased() {
       int ind = ((int)(mouseY-175))/50;
       if (ind < saveFileNames.size()) {
         if (ind >= 0) {
-          currentFileName = saveFileNames.get(ind);
-          readSaveData();
-          selectSaveFile = false;
+          if(mouseX < 600){
+            currentFileName = saveFileNames.get(ind);
+            readSaveData();
+            selectSaveFile = false;
+          }else{
+            int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete " + saveFileNames.get(ind) 
+              + "?\nDeleted save files cannot be recovered.", "Delete Save" , JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
+            if(n != JOptionPane.YES_OPTION)
+              return;
+            new File(dataPath("") + "/" + saveFileNames.get(ind) + ".greg").delete();
+            saveFileNames.remove(ind);
+            new File(dataPath("") + "/bezierSave.gurg").delete();
+            PrintWriter pw = createWriter(dataPath("") + "/bezierSave.gurg");
+            String out = "";
+            for(String name: saveFileNames)
+              out += name + "\n";
+            pw.write(out.substring(0, out.length()-1));
+            pw.flush();
+            pw.close();
+            return;
+          }
         }
         selectSaveFile = false;
       }

@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.Collections;
+import javax.swing.JOptionPane;
 PGraphics gLine, bgg, gPoint;
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();

@@ -9,7 +9,8 @@ void draw() {
     textFont(bigFont);
     text("Create New Layout", 100, 100);
     for (int i = 0; i < saveFileNames.size(); i++)
-      text(saveFileNames.get(i), 100, 50*(i+4));
+      text(saveFileNames.get(i) + "       ----------------------------------------------------------------"
+      + "--------------------------       Delete Save", 100, 50*(i+4));
     startTime = System.currentTimeMillis();
   }else{
     simpleMode = io.get(0).state();
