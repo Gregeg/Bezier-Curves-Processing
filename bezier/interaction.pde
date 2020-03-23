@@ -4,6 +4,8 @@ void keyPressed() {
       key=0;
       if(commandPosBox)
         commands.remove(commands.size()-1);
+      if(waitPointPosBox)
+        waitPoints.remove(waitPoints.size()-1);
       saveBox = false;
       savedBox = false;
       enterPtLoc = false;
@@ -12,6 +14,8 @@ void keyPressed() {
       pidBox = false;
       commandBox = false;
       commandPosBox = false;
+      waitPointBox = false;
+      waitPointPosBox = false;
       typing = "";
     }
     if (saveBox) {
@@ -86,7 +90,8 @@ void keyPressed() {
         saveBox = false;
         savedBox = true;
       } else
-        typing += key;
+        if((int)key != 65535)
+          typing += key;
     }
     if (savedDataBox)
       if (key != 's' && key != 'S')
@@ -99,7 +104,8 @@ void keyPressed() {
         typing = "";
         enterPtLoc = false;
       } else
-        typing += key;
+        if((int)key != 65535)
+          typing += key;
     }
     if (saveNewDataBox) {
       if (key == '\n') {
@@ -118,7 +124,8 @@ void keyPressed() {
         savedDataBox = true;
         typing = "";
       } else
-        typing += key;
+        if((int)key != 65535)
+          typing += key;
     }
     if(pidBox){
        if (key == '\n'){
@@ -140,7 +147,8 @@ void keyPressed() {
          }
          typing = "";
        }else
-         typing += key;
+         if((int)key != 65535)
+          typing += key;
     }
     if (pidSaveBox)
       if(key != '\n')
@@ -153,13 +161,15 @@ void keyPressed() {
         commandPosBox = true;
         commT = 0d;
       }else
-        typing += key;
+        if((int)key != 65535)
+          typing += key;
     }
     if(commandPosBox && (key == 'c' || key == 'C')){
-        addState();
-        setCommandT(commT);
-        commandPosBox = false;
-        keyPrevPressed = true;
+      addState();
+      setCommandT(commT);
+      commandPosBox = false;
+      rotated = true;
+      keyPrevPressed = true;
     }
     if(waitPointBox){
       if(key == '\n'){
@@ -169,12 +179,14 @@ void keyPressed() {
         waitPointPosBox = true;
         waitT = 0d;
       }else
-        typing += key;
+        if((int)key != 65535)
+          typing += key;
     }
     if(waitPointPosBox && (key == 'W' || key == 'w')){
       addState();
       setWaitPointT(waitT);
       waitPointPosBox = false;
+      rotated = true;
       keyPrevPressed = true;
     }
     if (keyCode == BACKSPACE) {
@@ -216,6 +228,7 @@ void mouseReleased() {
       rotation.replace(point, mouse().add(point.getPos(0).scale(-1)).getAngleRad());
     mouseInd = -1;
     rotationBox = false;
+    rotated = true;
   } else {
     if(mouseX < 200)
       checkIO();

@@ -1,8 +1,7 @@
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.Collections;
-PGraphics gLine;
-PGraphics bgg;
+PGraphics gLine, bgg, gPoint;
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg, sOff, sOn, botrot,bOn,bOff;
@@ -22,6 +21,7 @@ boolean commandPosBox = false;
 HashMap<BezierPoint, Double> rotation = new HashMap<BezierPoint, Double>();   // input last point of curve, returns bot rotation in RADIANS at that point
 boolean savedBox = false;
 boolean keyPrevPressed = false;
+boolean rotated = false;
 PFont bigFont, defaultFont;
 int speed;
 Double commT;
@@ -60,6 +60,7 @@ void setup() {
   bOff = loadImage("buttoff.png");
   gLine = createGraphics(1200, 700);
   bgg = createGraphics(1200, 700);
+  gPoint = createGraphics(1200, 700);
   bgg.beginDraw();
   bgg.image(bg, 0, 0);
   strokeWeight(1);

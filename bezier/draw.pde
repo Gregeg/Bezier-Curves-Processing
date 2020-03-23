@@ -27,7 +27,7 @@ void draw() {
         inc = true;
       if(inc) time++;
       int i = (int)time;
-      if((((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time == allPoints.size())){
+      if((((int)time == allPoints.size()-1 && allPoints.get(allPoints.size()-1).length == 1) || (int)time >= allPoints.size())){
           startTime = curTime;
           time = (inc? 1: 0);
           waitInd = 0;
@@ -125,78 +125,85 @@ void draw() {
           }
         }
       }
-      stroke(0, 200, 0);
-      Vector2D prevPt = points[0].getPos(0);
-      strokeWeight(1);
-      if (points.length > 2)
+      if(moved || rotationBox || rotated){
+        gPoint.beginDraw();
+        gPoint.clear();
+        rotated = false;
+        gPoint.stroke(0, 200, 0);
+        Vector2D prevPt = points[0].getPos(0);
+        gPoint.strokeWeight(1);
+        if (points.length > 2)
+          for (int d = 0; d < points.length; d++) {
+            Vector2D pt = points[d].getPos(0);
+            gPoint.line((float)prevPt.x, (float)prevPt.y, (float)pt.x, (float)pt.y);
+            prevPt = pt;
+          }
+        prevPt = points[0].getPos(0);
+        gPoint.stroke(0, 0, 255);
+        gPoint.strokeWeight(6);
         for (int d = 0; d < points.length; d++) {
           Vector2D pt = points[d].getPos(0);
-          line((float)prevPt.x, (float)prevPt.y, (float)pt.x, (float)pt.y);
+          gPoint.point((float)pt.x, (float)pt.y);
           prevPt = pt;
         }
-      prevPt = points[0].getPos(0);
-      stroke(0, 0, 255);
-      strokeWeight(6);
-      for (int d = 0; d < points.length; d++) {
-        Vector2D pt = points[d].getPos(0);
-        point((float)pt.x, (float)pt.y);
-        prevPt = pt;
-      }
-      strokeWeight(14);
-      stroke(0, 255, 255);
-      fill(0, 255, 255);
-      if(!commandPosBox)
-        for(int d = 0; d < commands.size(); d++){
-          Command c = commands.get(d);
-          BezierFunc func = new BezierFunc(allPoints.get((int)c.getT()));
-          Vector2D pos = func.getPos(c.getT()%1);
-          point((float)pos.x, (float)pos.y);
-          textSize(14);
-          text(c.getName(), (float)pos.x + 15, (float)pos.y);
+        gPoint.strokeWeight(14);
+        gPoint.stroke(0, 255, 255);
+        gPoint.fill(0, 255, 255);
+        if(!commandPosBox)
+          for(int d = 0; d < commands.size(); d++){
+            Command c = commands.get(d);
+            BezierFunc func = new BezierFunc(allPoints.get((int)c.getT()));
+            Vector2D pos = func.getPos(c.getT()%1);
+            gPoint.point((float)pos.x, (float)pos.y);
+            gPoint.textSize(14);
+            gPoint.text(c.getName(), (float)pos.x + 15, (float)pos.y);
+          }
+        gPoint.stroke(255, 255, 255);
+        gPoint.fill(255, 255, 255);
+        if(!waitPointPosBox){
+          for(int d = 0; d < waitPoints.size(); d++){
+            WaitPoint wp = waitPoints.get(d);
+            BezierFunc func = new BezierFunc(allPoints.get((int)wp.getT()+(inc? 1: 0)));
+            Vector2D pos = func.getPos(wp.getT()%1);
+            gPoint.point((float)pos.x, (float)pos.y);
+            gPoint.textSize(14);
+            gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15, (float)pos.y);
+          }
         }
-      stroke(255, 255, 255);
-      fill(255, 255, 255);
-      if(!waitPointPosBox){
-        for(int d = 0; d < waitPoints.size(); d++){
-          WaitPoint wp = waitPoints.get(d);
-          BezierFunc func = new BezierFunc(allPoints.get((int)wp.getT()+(inc? 1: 0)));
-          Vector2D pos = func.getPos(wp.getT()%1);
-          point((float)pos.x, (float)pos.y);
-          textSize(14);
-          text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15, (float)pos.y);
+        gPoint.textSize(12);
+        gPoint.stroke(255, 0, 0);
+        gPoint.strokeWeight(2);
+        for (int p = 0; p < allPoints.size(); p++) {
+          BezierPoint[] pts = allPoints.get(p);
+          BezierPoint ptLast  = pts[pts.length-1];
+          Vector2D pt = allPoints.get(p)[0].getPos(0);
+          gPoint.strokeWeight(8);
+          gPoint.point((float)pt.x, (float)pt.y);
+          gPoint.strokeWeight(2);
+          Double m = rotation.get(ptLast);
+          if(m == null)
+            m = 0d;
+          if(!rotationBox || p != pointInd){
+            Vector2D end = new Vector2D(ptLast.getPos(0).x + lengthOfArrows*Math.cos(m), ptLast.getPos(0).y + lengthOfArrows*Math.sin(m));
+            gPoint.line((float)ptLast.getPos(0).x, (float)ptLast.getPos(0).y, (float)end.x, (float)end.y);
+            gPoint.line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m + Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m + Math.PI/4)));
+            gPoint.line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m - Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m - Math.PI/4)));
+          }
         }
-      }
-      textSize(12);
-      stroke(255, 0, 0);
-      strokeWeight(2);
-      for (int p = 0; p < allPoints.size(); p++) {
-        BezierPoint[] pts = allPoints.get(p);
-        BezierPoint ptLast  = pts[pts.length-1];
-        Vector2D pt = allPoints.get(p)[0].getPos(0);
-        strokeWeight(8);
-        point((float)pt.x, (float)pt.y);
-        strokeWeight(2);
-        Double m = rotation.get(ptLast);
-        if(m == null)
-          m = 0d;
-        if(!rotationBox || p != pointInd){
-          Vector2D end = new Vector2D(ptLast.getPos(0).x + lengthOfArrows*Math.cos(m), ptLast.getPos(0).y + lengthOfArrows*Math.sin(m));
-          line((float)ptLast.getPos(0).x, (float)ptLast.getPos(0).y, (float)end.x, (float)end.y);
-          line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m + Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m + Math.PI/4)));
-          line((float)end.x, (float)end.y, (float)(end.x - arrowSize*Math.cos(m - Math.PI/4)), (float)(end.y - arrowSize*Math.sin(m - Math.PI/4)));
+        if(allPoints.size() != 0){
+          Vector2D p = allPoints.get(0)[0].getPos(0);
+          gPoint.line((float)p.x, (float)p.y, (float)p.x + lengthOfArrows, (float)p.y);
+          gPoint.line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y + arrowSize/1.414);
+          gPoint.line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y - arrowSize/1.414);
+  
         }
-    }
-      if(allPoints.size() != 0){
-        Vector2D p = allPoints.get(0)[0].getPos(0);
-        line((float)p.x, (float)p.y, (float)p.x + lengthOfArrows, (float)p.y);
-        line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y + arrowSize/1.414);
-        line((float)p.x + lengthOfArrows, (float)p.y, (float)p.x + lengthOfArrows - arrowSize/1.414, (float)p.y - arrowSize/1.414);
-
+        gPoint.strokeWeight(8);
+        BezierPoint[] last = allPoints.get(allPoints.size()-1);
+        gPoint.point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
+        gPoint.endDraw();
       }
-      strokeWeight(8);
-      BezierPoint[] last = allPoints.get(allPoints.size()-1);
-      point((float)last[last.length-1].getPos(0).x, (float)last[last.length-1].getPos(0).y);
-      stroke(0, 0, 0);
+      image(gPoint, 0, 0);
+      stroke(0);
       if (mouseInd != -1) {
         Vector2D dv = mouse.add(pmouse().scale(-1));
         if(!moved && dv.getMagnitude() != 0){
@@ -339,9 +346,8 @@ void draw() {
     }
     if (keyPressed || pushed) {
       if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox) {
-        if(pushed)
-          pushed = false;
-        if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT)) {
+        if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT) && !pushed) {
+          rotated = true;
           inc = false;
           if (allPoints.get(pointInd).length > 2) {
             pointInd++;
@@ -356,7 +362,8 @@ void draw() {
             allPoints.remove(0);
           }
           keyPrevPressed = true;
-        } else if (!commandPosBox && (key == 'B' || key == 'b' || keyCode == LEFT)) {
+        } else if (!commandPosBox && (key == 'B' || key == 'b' || keyCode == LEFT) && !pushed) {
+          rotated = true;
           if (pointInd != 0) {
             if (pointInd == allPoints.size()-1 && allPoints.get(pointInd).length == 1) {
               addState();
@@ -370,11 +377,12 @@ void draw() {
             allPoints.get(0)[0] = allPoints.get(1)[0];
           }
           keyPrevPressed = true;
-        }else if (key == DELETE) {
+        }else if (key == DELETE && !pushed) {
           moved = true;
           BezierPoint[] points = allPoints.get(pointInd);
           // deletes nearest point, if start or end and deletes point with point length of 3, delete entire curve segment,
           // cannot delete middle segment point if segment has 3 points
+          // also deletes command points and wait points
           if (points.length == 3) {
             addState();
             if (pointInd == 0) {
@@ -433,8 +441,10 @@ void draw() {
                 lowIndWait = i;
               }
             }
-            if(lowIndWait != -1 && lowDistWait < lowDist && lowDistWait < lowDistComm)
+            if(lowIndWait != -1 && lowDistWait < lowDist && lowDistWait < lowDistComm){
               waitPoints.remove(lowIndWait);
+              wait = false;
+            }
             else if(lowIndComm != -1 && lowDistComm < lowDist && lowDistComm < lowDistWait)
               commands.remove(lowIndComm);
             else{
@@ -476,30 +486,30 @@ void draw() {
             }
           }
           keyPrevPressed = true;
-        } else if (key == 'e' || key == 'E' || io.get(2).state()) { // Export
+        } else if (((key == 'e' || key == 'E') && !pushed) || io.get(2).state()) { // Export
           saveBox = true;
           keyPrevPressed = true;
-        } else if (keyCode == UP) {
+        } else if (keyCode == UP && !pushed) {
           speed+=10;
-        } else if (keyCode == DOWN) {
+        } else if (keyCode == DOWN && !pushed) {
           speed-=10;
-        } else if (key == 's' || key == 'S' || io.get(1).state()) { // Save
+        } else if (((key == 's' || key == 'S') && !pushed) || io.get(1).state()) { // Save
           if (currentFileName == null)
             saveNewDataBox = true;
           else {
             saveData();
             savedDataBox = true;
           }
-        } else if (key == 'a' || key == 'A' || io.get(3).state()) // specify point
+        } else if (((key == 'a' || key == 'A') && !pushed) || io.get(3).state()) // specify point
           enterPtLoc = true;
-        else if (key == 26 || io.get(4).state()){       // UNDO
+        else if ((key == 26 && !pushed) || io.get(4).state()){       // UNDO
           moved = true;
           restoreState();
           keyPrevPressed = true;
-        } else if ((key == 'r' || key == 'R' || io.get(5).state()) && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){  // rotate
+        } else if ((((key == 'r' || key == 'R') && !pushed) || io.get(5).state()) && allPoints.size() != 0 && allPoints.get(pointInd).length > 1){  // rotate
           rotationBox = !rotationBox;
           keyPrevPressed = true;
-        }else if((key == ' ' || io.get(7).state()) && allPoints.get(0).length > 1){
+        }else if(((key == ' ' && !pushed) || io.get(7).state()) && allPoints.get(0).length > 1){
           simulation = !simulation;
           if(simulation){
             simDone = false;
@@ -511,25 +521,26 @@ void draw() {
             wait = false;
           }
           keyPrevPressed = true;
-        }else if(key == 'p' || key == 'P' || io.get(8).state()){ // pid values
+        }else if(((key == 'p' || key == 'P') && !pushed) || io.get(8).state()){ // pid values
           pidChar = 'P';
           pidBox = !pidBox;
           typing = "";
           keyPrevPressed = true;
-        }else if(allPoints.get(pointInd).length > 1 && (key == 'c' || key == 'C' || io.get(6).state())){ // command
+        }else if(allPoints.get(pointInd).length > 1 && (((key == 'c' || key == 'C') && !pushed) || io.get(6).state())){ // command
           commandBox = true;
           typing = "";
           keyPrevPressed = true;
-        }else if(allPoints.get(pointInd).length > 1 && (key == 'w' || key == 'W' || io.get(9).state())){
+        }else if(allPoints.get(pointInd).length > 1 && (((key == 'w' || key == 'W') && !pushed) || io.get(9).state())){
           waitPointBox = true;
           typing = "";
           keyPrevPressed = true;
         }
+        pushed = false;
       }
       if(commandPosBox)
-          commT = moveDot(commT);
-        if(waitPointPosBox)
-          waitT = moveDot(waitT);
+        commT = moveDot(commT);
+      if(waitPointPosBox)
+        waitT = moveDot(waitT);
     } else {
       keyPrevPressed = false;
       waitLeft = 0;
