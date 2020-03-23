@@ -1,4 +1,11 @@
-# Manual
+# Stuzzy's Scouter
+![Recordit GIF](http://g.recordit.co/PGHzP9pbLD.gif)
+
+
+## Installation
+[Version 1.0 Beta](https://github.com/Gregeg/Bezier-Curves-Processing/releases/tag/v1.0-beta)
+
+## Usage
 ### Click to create points
  - Easy mode enabled
    - click to add new curves
@@ -60,4 +67,5 @@
    - press "p" to edit pid constants
    - change data on specific robot in data/robot.stats
 
-### [Papers used for Bezier Curve research](https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf)
+## Other Info
+[Papers used for Bezier Curve research](https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf)
