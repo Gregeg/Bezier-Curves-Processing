@@ -148,7 +148,6 @@ void draw() {
         }
         gPoint.strokeWeight(14);
         gPoint.stroke(0, 255, 255);
-        gPoint.fill(0, 255, 255);
         if(!commandPosBox)
           for(int d = 0; d < commands.size(); d++){
             Command c = commands.get(d);
@@ -156,10 +155,12 @@ void draw() {
             Vector2D pos = func.getPos(c.getT()%1);
             gPoint.point((float)pos.x, (float)pos.y);
             gPoint.textSize(14);
+            gPoint.fill(0);
+            for(int x = -textAuraSize; x <= textAuraSize; x++) for(int y = -textAuraSize; y <= textAuraSize; y++) gPoint.text(c.getName(), (float)pos.x + 15 + x, (float)pos.y + y);
+            gPoint.fill(0, 255, 255);
             gPoint.text(c.getName(), (float)pos.x + 15, (float)pos.y);
           }
         gPoint.stroke(255, 255, 255);
-        gPoint.fill(255, 255, 255);
         if(!waitPointPosBox){
           for(int d = 0; d < waitPoints.size(); d++){
             WaitPoint wp = waitPoints.get(d);
@@ -167,6 +168,9 @@ void draw() {
             Vector2D pos = func.getPos(wp.getT()%1);
             gPoint.point((float)pos.x, (float)pos.y);
             gPoint.textSize(14);
+            gPoint.fill(0);
+            for(int x = -textAuraSize; x <= textAuraSize; x++) for(int y = -textAuraSize; y <= textAuraSize; y++) gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15 + x, (float)pos.y + y);
+            gPoint.fill(255, 255, 255);
             gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15, (float)pos.y);
           }
         }

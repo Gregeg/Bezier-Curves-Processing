@@ -13,6 +13,7 @@ boolean saveBox = false;
 boolean waitPointBox = false;
 boolean waitPointPosBox = false;
 Double waitT;
+int textAuraSize = 1;
 boolean inc = false;
 boolean pidSaveBox = false;
 int waitRight, waitLeft;
