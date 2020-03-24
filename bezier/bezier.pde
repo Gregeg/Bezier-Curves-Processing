@@ -9,7 +9,6 @@ PImage bg, sOff, sOn, botrot,bOn,bOff;
 Vector2D mousePrev, mouseSpecify;
 int prevAllPointsPrevInd = 0;
 int mouseInd, pointInd;
-float botRotScale;
 boolean saveBox = false;
 boolean waitPointBox = false;
 boolean waitPointPosBox = false;
@@ -26,10 +25,10 @@ boolean keyPrevPressed = false;
 boolean rotated = false;
 PFont bigFont, defaultFont;
 int speed;
+Vector2D botDim;
 Double commT;
 Character pidChar = null;
 String typing = "";
-float botSimSize = 2.5;
 long startTime;
 int waitInd = 0;
 long startWaitTime = -1;
@@ -143,6 +142,7 @@ void setup() {
     e.printStackTrace();
   }
   robot = new Robot(1, 0, .08, new Vector2D(0, 10), new Vector2D(10, 10));
+  botDim = getPxlCoor(new Vector2D(botWidth, botHeight)).add(getPxlCoor(new Vector2D(0, 0)).scale(-1));
 }
 
 double getLineDouble(Scanner sc){

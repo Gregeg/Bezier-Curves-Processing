@@ -1,6 +1,5 @@
 void draw() {
   speed=constrain(speed,0,Integer.MAX_VALUE);
-  botRotScale = (simulation? botSimSize: 1);
   if (selectSaveFile) {
     background(204);
     fill(0, 0, 0);
