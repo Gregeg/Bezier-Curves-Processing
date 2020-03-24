@@ -4,8 +4,9 @@
 <br /><br /><br />
 
 ## Installation
-[Version 1.0 Beta](https://github.com/Gregeg/Bezier-Curves-Processing/releases/tag/v1.0-beta)
-<br /><br /><br />
+### [Version 1.1 Beta](https://github.com/Gregeg/Bezier-Curves-Processing/releases/tag/v1.0-beta)
+<br /><br />
+
 ## Usage
 ### Click to create points
  - Easy mode enabled
