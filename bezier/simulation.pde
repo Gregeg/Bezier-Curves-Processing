@@ -75,7 +75,7 @@ class Robot {
     rot %= 2*PI;
     botSpeed = nBotSpeed;
     angularSpeed = nAngularSpeed;
-    prevTime = curTime; //<>//
+    prevTime = curTime; //<>// //<>//
   }
   void setTargetPos(Vector2D pos){
     targetPos = pos;

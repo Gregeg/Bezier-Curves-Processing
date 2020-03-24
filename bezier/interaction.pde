@@ -43,8 +43,9 @@ void keyPressed() {
         }
         if(out.charAt(out.length()-1) == ',')
           out = out.substring(0, out.length() - 1);
-        out += "};\n\tprivate static double[] getPoints0(){\n\t\tdouble[] d = {";
+        out += "};\n\tprivate static class p0{\n\t\tprivate static double[] getPoints0(){\n\t\t\tdouble[] d = {";
         int aLevel = 0;
+        int cLevel = 0;
         int waitPointInd = 0;
         int totalPoints = 0;
         for (int i = 0; i < allPoints.size()*amt; i++) {
@@ -57,34 +58,55 @@ void keyPressed() {
             for(int w = 0; w < mp; w++){
               out += p.x + ", " + p.y + ", " + getRotation(((double)i%amt)/amt) + ", ";
               totalPoints++;
-              if ((totalPoints+1)%1000 == 0) {
+              if ((totalPoints)%1000 == 0) {
                 aLevel++;
-                out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tprivate static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
+                if(aLevel == 10){
+                  aLevel--;
+                  cLevel++;
+                  out = out.substring(0, out.length()-2) + "};\n\t\t\treturn d;\n\t\t}\n\t\t";
+                  out += endOfClass(aLevel);
+                  out += "}\n\tprivate static class p" + cLevel
+                    + "{\n\t\tprivate static double[] getPoints0(){\n\t\t\tdouble[] d = {";
+                  aLevel = 0;
+                }else
+                  out = out.substring(0, out.length()-2) + "};\n\t\t\treturn d;\n\t\t}\n\t\tprivate static double[] getPoints" + aLevel + "(){\n\t\t\tdouble[] d = {";
               }
-              totalPoints++;
             }
             waitPointInd++;
           }
           Vector2D pos = getFeetCoor(new BezierFunc(allPoints.get(ptInd)).getPos(time));
           out += pos.x + ", " + pos.y + ", " + getRotation(((double)i%amt)/amt) + ", ";
           totalPoints++;
-          if ((totalPoints+1)%1000 == 0) {
+          if ((totalPoints)%1000 == 0) {
             aLevel++;
-            out = out.substring(0, out.length()-2) + "};\n\t\treturn d;\n\t}\n\tprivate static double[] getPoints" + aLevel + "(){\n\t\tdouble[] d = {";
+            if(aLevel == 10){
+              aLevel--;
+              cLevel++;
+              out = out.substring(0, out.length()-2) + "};\n\t\t\treturn d;\n\t\t}\n\t\t";
+              out += endOfClass(aLevel);
+              out += "}\n\tprivate static class p" + cLevel
+                + "{\n\t\tprivate static double[] getPoints0(){\n\t\t\tdouble[] d = {";
+              aLevel = 0;
+            }else
+              out = out.substring(0, out.length()-2) + "};\n\t\t\treturn d;\n\t\t}\n\t\tprivate static double[] getPoints" + aLevel + "(){\n\t\t\tdouble[] d = {";
           }
         }
-        out += "};\n\t\treturn d;\n\t}\n\tpublic static double[] getTotalPoints(){\n\t\t";
-        for (int i = 0; i <= aLevel; i++)
-          out += "double[] d" + i + " = getPoints" + i + "();\n\t\t";
+        if(out.substring(out.length()-2).equals(", "));
+          out = out.substring(0, out.length()-2);
+        out += "};\n\t\t\treturn d;\n\t\t}\n\t\t";
+        out += endOfClass(aLevel);
+        out += "}\n\tpublic static double[] getTotalPoints(){\n\t\t";
+        for (int j = 0; j <= cLevel; j++)
+          out += "double[] d" + j + " = p" + j + ".getTotalPoints();\n\t\t";
         out += "double[] d = new double[";
-        for (int i = 0; i <= aLevel; i++)
-          out += "d" + i + ".length + ";
+        for (int j = 0; j <= cLevel; j++)
+          out += "d" + j + ".length + ";
         out = out.substring(0, out.length()-3) + "];\n\t\t";
         out += "ArrayList<double[]> dd = new ArrayList<double[]>();\n\t\t";
-        for (int i = 0; i <= aLevel; i++)
-          out += "dd.add(d" + i + ");\n\t\t";
-        out += "int ind = 0;\n\t\tfor(int i = 0; i < dd.size(); i++){\n\t\t\tdouble[] ddd = dd.get(i);\n\t\t\tfor(int j = 0; j < ddd.length; j++){\n\t\t\t\td[ind] = ddd[j];\n\t\t\t\tind++;\n\t\t\t}\n\t\t}\n\t\t";
-        out += "return d;\n\t}\n}";
+        for (int j = 0; j <= cLevel; j++)
+          out += "dd.add(d" + j + ");\n\t\t";
+        out += "int ind = 0;\n\t\tfor(int i = 0; i < dd.size(); i++){\n\t\t\tdouble[] ddd = dd.get(i);"
+          + "\n\t\t\tfor(int j = 0; j < ddd.length; j++){\n\t\t\t\td[ind] = ddd[j];\n\t\t\t\tind++;\n\t\t\t}\n\t\t}\n\t\treturn d;\n\t}\n}";
         output.println(out);
         output.flush();
         output.close();
@@ -408,4 +430,20 @@ Double moveDot(Double t){ //changes double based on user input
     waitLeft = 0;
   }
   return t;
+}
+String endOfClass(int aLevel){
+  String out = "";
+  out += "public static double[] getTotalPoints(){\n\t\t\t";
+  for (int j = 0; j <= aLevel; j++)
+    out += "double[] d" + j + " = getPoints" + j + "();\n\t\t\t";
+  out += "double[] d = new double[";
+  for (int j = 0; j <= aLevel; j++)
+    out += "d" + j + ".length + ";
+  out = out.substring(0, out.length()-3) + "];\n\t\t\t";
+  out += "ArrayList<double[]> dd = new ArrayList<double[]>();\n\t\t\t";
+  for (int j = 0; j <= aLevel; j++)
+    out += "dd.add(d" + j + ");\n\t\t\t";
+  out += "int ind = 0;\n\t\t\tfor(int i = 0; i < dd.size(); i++){\n\t\t\t\tdouble[] ddd = dd.get(i);"
+    + "\n\t\t\t\tfor(int j = 0; j < ddd.length; j++){\n\t\t\t\t\td[ind] = ddd[j];\n\t\t\t\t\tind++;\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn d;\n\t\t}\n\t";
+  return out;
 }
