@@ -4,7 +4,7 @@
 <br /><br /><br />
 
 ## Installation
-### [Version 1.1 Beta](https://github.com/Gregeg/Bezier-Curves-Processing/releases/tag/v1.0-beta)
+### [Download Latest Release](https://github.com/Gregeg/Bezier-Curves-Processing/releases/)
 <br /><br />
 
 ## Usage
@@ -68,6 +68,16 @@
  - editing robot values
    - press "p" to edit pid constants
    - change data on specific robot in data/robot.stats
+
+### Main Menu
+ - press "M" to return to the main menu
+
+### Drawing
+ - press "D" or any number key and press and hold to draw
+ - number keys change size the size, 0 is erase
+ - LEFT and RIGHT keys change the color
+ - press "C" while drawing to clear your drawing screen
+ 
 <br /><br /><br />
 ## Other Info
 [Papers used for Bezier Curve research](https://www.cs.cornell.edu/courses/cs4620/2017sp/slides/16spline-curves.pdf)
