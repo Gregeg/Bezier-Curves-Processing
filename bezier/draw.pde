@@ -169,7 +169,8 @@ void draw() {
             gPoint.point((float)pos.x, (float)pos.y);
             gPoint.textSize(14);
             gPoint.fill(0);
-            for(int x = -textAuraSize; x <= textAuraSize; x++) for(int y = -textAuraSize; y <= textAuraSize; y++) gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15 + x, (float)pos.y + y);
+            for(int x = -textAuraSize; x <= textAuraSize; x++) for(int y = -textAuraSize; y <= textAuraSize; y++) 
+              gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15 + x, (float)pos.y + y);
             gPoint.fill(255, 255, 255);
             gPoint.text(round(wp.getDuration()/1000, 3) + " seconds", (float)pos.x + 15, (float)pos.y);
           }
@@ -239,7 +240,7 @@ void draw() {
     text("Location (feet): (" + round(loc.x, 2)  + ", " + round(loc.y, 2) + ")", 10, 692);
 
     fill(204, 204, 204);
-    rect(0, 50, 200, 600);  // Menu
+    rect(0, 50, 200, 610);  // Menu
 
     if (saveBox) {
       fill(255, 255, 255);
@@ -352,7 +353,7 @@ void draw() {
     if(draw){
       fill(255, 255, 255);
       strokeWeight(1);
-      rect(0, 0, 600, 25);
+      rect(0, 0, 660, 25);
       fill(0, 0, 0);
       text("Using draw mode. Press number and arrow keys to change size and color (0 is erase, ESC to close, \"C\" to clear)" + typing, 10, 17);
     }
@@ -546,11 +547,19 @@ void draw() {
           waitPointBox = true;
           typing = "";
           keyPrevPressed = true;
-        }else if((key == 'd' || key == 'D') && !pushed){
+        }else if(((key == 'd' || key == 'D') && !pushed) || io.get(10).state()){
           drawInit(2);
+        }else if(((key == 'm' || key == 'M') && !pushed) || io.get(11).state()){
+          if(JOptionPane.showConfirmDialog(null, "Are you sure you want to return to the Menu?\nMake sure you save your progress first.", "Return to Menu",
+          JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+            frameCount = -1;
+            reInit();
+            return;
+          }
+          keyPrevPressed = true;
         }
         try{
-          int n = Integer.parseInt(""+((char)key));
+          int n = Integer.parseInt(""+((char)key));  // clicking number button automatically activates drawing mode
           switch(n){
             case 0: n = 10; break;
             case 7: n = 8; break;

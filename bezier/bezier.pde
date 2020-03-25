@@ -92,6 +92,8 @@ void setup() {
   new YitButton("Simulation", "(Space)");
   new YitButton("PID Values (p)");
   new YitButton("Wait Point (w)");
+  new YitButton("Draw (d)");
+  new YitButton("Menu (m)");
   size(1200, 700);
   frameRate(60);
   bigFont = createFont("Arial", 20);
@@ -152,4 +154,45 @@ void setup() {
 double getLineDouble(Scanner sc){
   String line = sc.nextLine();
   return Double.parseDouble(line.substring(line.indexOf(":")+1).trim());
+}
+void reInit(){
+  pushed = false;
+  allPoints = new ArrayList<BezierPoint[]>();
+  prevAllPointsPrevInd = 0;
+  saveBox = false;
+  waitPointBox = false;
+  waitPointPosBox = false;
+  textAuraSize = 1;
+  inc = false;
+  pidSaveBox = false;
+  rotationBox = false;
+  commandPosBox = false;
+  rotation = new HashMap<BezierPoint, Double>();
+  savedBox = false;
+  keyPrevPressed = false;
+  rotated = false;
+  draw = false;
+  erase = true;
+  pidChar = null;
+  typing = "";
+  startTime = 0;
+  waitInd = 0;
+  startWaitTime = -1;
+  wait = false;
+  lengthOfArrows = 30;
+  arrowSize = 10;
+  simDone = false;
+  savedDataBox = false;
+  commandBox = false;
+  enterPtLoc = false;
+  selectSaveFile = false;
+  saveNewDataBox = false;
+  skidding = false;
+  currentFileName = null;
+  simpleMode = true;
+  moved = true;
+  pidBox = false;
+  saveFileNames = new ArrayList<String>();
+  simulation = false;
+  torque = new ArrayList<double[]>();
 }

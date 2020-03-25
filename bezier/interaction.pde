@@ -220,8 +220,7 @@ void keyPressed() {
         draw = false;
         return;
       }else if(key == 'c' || key == 'C'){
-        int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear your picture/drawing?", "Clear Drawing" , JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
-        if(n != JOptionPane.YES_OPTION)
+        if(JOptionPane.showConfirmDialog(null, "Are you sure you want to clear your picture/drawing?", "Clear Drawing" , JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION)
           return;
         gDraw.beginDraw();
         gDraw.clear();
