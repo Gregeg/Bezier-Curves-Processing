@@ -69,8 +69,19 @@ void readSaveData() {
     }
     pointInd = 0;
     sc.close();
-  }
-  catch(Exception e) {
+    PImage img = loadImage("drawings/" + currentFileName + ".tif");
+    gDraw.beginDraw();
+    gDraw.image(img, 0, 0);
+    gDraw.loadPixels();
+    for(int p = 0; p < gDraw.pixels.length; p++){
+      int pxl = gDraw.pixels[p];
+      if((pxl >> 16 & 0xFF) == 0 && (pxl >> 8 & 0xFF) == 0 && (pxl & 0xFF) == 0){
+        gDraw.pixels[p] = color(0, 0, 0, 0);
+      }
+    }
+    gDraw.updatePixels();
+    gDraw.endDraw();
+  }catch(Exception e) {
     e.printStackTrace();
   }
 }
@@ -109,4 +120,5 @@ void saveData() {
   }
   greg.flush();
   greg.close();
+  gDraw.save("data/drawings/" + currentFileName);
 }

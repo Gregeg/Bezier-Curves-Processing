@@ -16,6 +16,7 @@ void keyPressed() {
       commandPosBox = false;
       waitPointBox = false;
       waitPointPosBox = false;
+      draw = false;
       typing = "";
     }
     if (saveBox) {
@@ -213,6 +214,46 @@ void keyPressed() {
       rotated = true;
       keyPrevPressed = true;
     }
+    if(draw && !keyPrevPressed){
+      keyPrevPressed = true;
+      if(key == 'd' || key == 'd'){
+        draw = false;
+        return;
+      }else if(key == 'c' || key == 'C'){
+        int n = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear your picture/drawing?", "Clear Drawing" , JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
+        if(n != JOptionPane.YES_OPTION)
+          return;
+        gDraw.beginDraw();
+        gDraw.clear();
+        gDraw.endDraw();
+      }
+      int n = -1;
+      try{
+        n = Integer.parseInt(""+((char)key));
+      }catch(NumberFormatException e){}
+      if(Math.abs(n-4.5) > 5)
+        n = -1;
+      if(keyCode == LEFT){
+        drawColor--;
+        if(drawColor == -1)
+          drawColor = 6;
+      }else if(keyCode == RIGHT){
+        drawColor++;
+        if(drawColor == 7)
+          drawColor = 0;
+      }else if(n != -1){
+        switch(n){
+          case 0: n = 10; break;
+          case 7: n = 8; break;
+          case 8: n = 11; break;
+          case 9: n = 15; break;
+        }
+        erase = n==10;
+        gDraw.beginDraw();
+        gDraw.strokeWeight(n);
+        gDraw.endDraw();
+      }
+    }
     if (keyCode == BACKSPACE) {
       if (typing.length() <= 2)
         typing = "";
@@ -225,7 +266,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  if (!selectSaveFile && mouseX > 200) {
+  if (!selectSaveFile && mouseX > 200 && !draw) {
     Vector2D mouse = mouse();
     mousePrev = mouse;
     if (allPoints.size() > 0) {
@@ -288,7 +329,7 @@ void mouseReleased() {
       Vector2D mouse = mouse();
       if (mouseSpecify != null)
         mouse = mouseSpecify;
-      if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null) {
+      if (mousePrev.add(mouse.scale(-1)).getMagnitude() < 0.0001 || mouseSpecify != null && !draw) {
         moved = true;
         inc = false;
         if(simulation)
@@ -446,4 +487,15 @@ String endOfClass(int aLevel){
   out += "int ind = 0;\n\t\t\tfor(int i = 0; i < dd.size(); i++){\n\t\t\t\tdouble[] ddd = dd.get(i);"
     + "\n\t\t\t\tfor(int j = 0; j < ddd.length; j++){\n\t\t\t\t\td[ind] = ddd[j];\n\t\t\t\t\tind++;\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn d;\n\t\t}\n\t";
   return out;
+}
+void setColor(){
+  switch(drawColor){
+    case 0: gDraw.stroke(255, 0, 0); break;
+    case 1: gDraw.stroke(0, 255, 0); break;
+    case 2: gDraw.stroke(0, 0, 255); break;
+    case 3: gDraw.stroke(255, 0, 255); break;
+    case 4: gDraw.stroke(255, 255, 0); break;
+    case 5: gDraw.stroke(0, 255, 255); break;
+    case 6: gDraw.stroke(255, 255, 255); break;
+  }
 }

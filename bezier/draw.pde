@@ -207,6 +207,7 @@ void draw() {
         gPoint.endDraw();
       }
       image(gPoint, 0, 0);
+      image(gDraw, 0, 0);
       stroke(0);
       if (mouseInd != -1) {
         Vector2D dv = mouse.add(pmouse().scale(-1));
@@ -348,8 +349,15 @@ void draw() {
       fill(0, 0, 0);
       text("use arrow keys and press \"W\" for position: " + typing, 10, 17);
     }
+    if(draw){
+      fill(255, 255, 255);
+      strokeWeight(1);
+      rect(0, 0, 600, 25);
+      fill(0, 0, 0);
+      text("Using draw mode. Press number and arrow keys to change size and color (0 is erase, ESC to close, \"C\" to clear)" + typing, 10, 17);
+    }
     if (keyPressed || pushed) {
-      if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox) {
+      if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox && !draw) {
         if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT) && !pushed) {
           rotated = true;
           inc = false;
@@ -538,7 +546,21 @@ void draw() {
           waitPointBox = true;
           typing = "";
           keyPrevPressed = true;
+        }else if((key == 'd' || key == 'D') && !pushed){
+          drawInit(2);
         }
+        try{
+          int n = Integer.parseInt(""+((char)key));
+          switch(n){
+            case 0: n = 10; break;
+            case 7: n = 8; break;
+            case 8: n = 11; break;
+            case 9: n = 15; break;
+          }
+          erase = n==10;
+          drawInit(n);
+        }catch(NumberFormatException e){}
+        
         pushed = false;
       }
       if(commandPosBox)
@@ -552,4 +574,35 @@ void draw() {
     }
     paintIO();
   }
+  if(mousePressed){
+    if(draw){
+      gDraw.beginDraw();
+      if(erase){
+        Vector2D mouse = mouse();
+        Vector2D pmouse = pmouse();
+        for(double i = 0; i <= 1; i+=.2){
+          Vector2D m = mouse.scale(i).add(pmouse.scale(1-i));
+          for(int x = (int)m.x-25; x < (int)m.x+25; x++)
+            for(int y = (int)m.y-25; y < (int)m.y+25; y++)
+              if(x >= 0 && y >= 0 && x < gDraw.width && y < gDraw.height)
+                gDraw.pixels[y*gDraw.width + x] = color(0, 0, 0, 0);
+        }
+        gDraw.updatePixels();
+      }else{
+        setColor();
+        gDraw.line(mouseX, mouseY, pmouseX, pmouseY);
+      }
+      gDraw.endDraw();
+    }
+  }
+}
+void drawInit(int strokeWeight){
+  draw = true;
+  erase = false;
+  gDraw.beginDraw();
+  gDraw.strokeWeight(strokeWeight);
+  drawColor = 0;
+  setColor();
+  gDraw.endDraw();
+  keyPrevPressed = true;
 }
