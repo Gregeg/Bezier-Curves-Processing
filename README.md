@@ -27,7 +27,7 @@
  - press "CTRL+Z" to undo changes done to points
 
 ### Editing speed
- - hold "UP" and "DOWN arrow keys
+ - hold "UP" and "DOWN" arrow keys
 
 ### Adding Wait Points
  - press "w" and type the duration of the wait in milliseconds(can be a decimal) and press "ENTER"
