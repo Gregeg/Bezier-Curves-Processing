@@ -3,6 +3,7 @@ import java.util.function.Function;
 import java.util.Collections;
 import javax.swing.JOptionPane;
 PGraphics gLine, bgg, gPoint, gDraw;
+boolean control = false;
 boolean pushed = false;
 ArrayList<BezierPoint[]> allPoints = new ArrayList<BezierPoint[]>();
 PImage bg, sOff, sOn, botrot,bOn,bOff;

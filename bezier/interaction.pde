@@ -1,4 +1,13 @@
+void keyReleased() {
+  if (key == CONTROL) {
+    control = false;
+  }
+}
+
 void keyPressed() {
+  if (key == CONTROL) {
+    control=true;
+  }
   if (!selectSaveFile) {
     if (key==27) { // ESC
       key=0;
