@@ -57,7 +57,7 @@ ArrayList<double[]> torque = new ArrayList<double[]>();
 TorqueCurve tCurve;
 Robot robot;
 void setup() {
-  bg = loadImage("frcFieldCropped.png");
+  bg = loadImage("newfield.png");
   sOn = loadImage("on.png");
   sOff = loadImage("off.png");
   botrot = loadImage("botrot.png");
