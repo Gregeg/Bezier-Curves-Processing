@@ -101,7 +101,7 @@ void keyPressed() {
               out = out.substring(0, out.length()-2) + "};\n\t\t\treturn d;\n\t\t}\n\t\tprivate static double[] getPoints" + aLevel + "(){\n\t\t\tdouble[] d = {";
           }
         }
-        if(out.substring(out.length()-2).equals(", "));
+        if(out.substring(out.length()-2).equals(", "))
           out = out.substring(0, out.length()-2);
         out += "};\n\t\t\treturn d;\n\t\t}\n\t\t";
         out += endOfClass(aLevel);
