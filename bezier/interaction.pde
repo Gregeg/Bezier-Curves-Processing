@@ -58,9 +58,13 @@ void keyPressed() {
         int cLevel = 0;
         int waitPointInd = 0;
         int totalPoints = 0;
-        for (int i = 0; i < allPoints.size()*amt; i++) {
+        for (int i = 0; i < allPoints.size()*amt + 1; i++) {
           int ptInd = i/amt;
           double time = ((double)i%amt)/amt;
+          if(ptInd == allPoints.size()){
+            time = 1;
+            ptInd--;
+          }
           BezierFunc func = new BezierFunc(allPoints.get(ptInd));
           if(waitPointInd != waitPoints.size() && time >= waitPoints.get(waitPointInd).getT()){
             int mp = (int)(((double)speed)*amt*waitPoints.get(waitPointInd).getDuration()/1000000);
