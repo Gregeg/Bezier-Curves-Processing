@@ -120,5 +120,9 @@ void saveData() {
   }
   greg.flush();
   greg.close();
+  System.out.println(gDraw);
+  System.out.println(currentFileName);
+  gDraw.beginDraw();
   gDraw.save("data/drawings/" + currentFileName);
+  gDraw.endDraw();
 }
