@@ -358,7 +358,7 @@ void draw() {
       text("Using draw mode. Press number and arrow keys to change size and color (0 is erase, ESC to close, \"C\" to clear)" + typing, 10, 17);
     }
     if (keyPressed || pushed) {
-      if (!keyPrevPressed && allPoints.size() > 0 && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox && !draw) {
+      if (!keyPrevPressed && (key == 'a' || key == 'A' || allPoints.size() > 0) && !saveBox && !enterPtLoc && !saveNewDataBox && !commandBox && !pidBox && !commandPosBox && !waitPointPosBox && !waitPointBox && !draw) {
         if (!commandPosBox && (key == 'N' || key == 'n' || keyCode == RIGHT) && !pushed) {
           rotated = true;
           inc = false;

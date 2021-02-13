@@ -10,7 +10,7 @@ Vector2D getFeetCoor(double feetX, double feetY) {
 Vector2D getPxlCoor(Vector2D feet) {
   return getPxlCoor(feet.x, feet.y);
 }
-Vector2D getPxlCoor(double pxX, double pxY) { //1134 553
+Vector2D getPxlCoor(double pxX, double pxY) {
   return new Vector2D(map((float)pxX, 0, 30, 158, 971), map((float)pxY, 18, 3, 41, 451));
 }
 Vector2D getFeetCoor(Vector2D pxl) {
