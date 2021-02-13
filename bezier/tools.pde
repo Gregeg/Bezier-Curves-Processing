@@ -5,13 +5,13 @@ Vector2D pmouse() {
   return new Vector2D(pmouseX, pmouseY);
 }
 Vector2D getFeetCoor(double feetX, double feetY) {
-  return new Vector2D(map((float)feetX, 159, 1134, 0, 30), map((float)feetY, 41, 533, 15, 0));
+  return new Vector2D(map((float)feetX, 159, 972, 0, 30), map((float)feetY, 41, 451, 18, 3));
 }
 Vector2D getPxlCoor(Vector2D feet) {
   return getPxlCoor(feet.x, feet.y);
 }
-Vector2D getPxlCoor(double pxX, double pxY) {
-  return new Vector2D(map((float)pxX, 0, 30, 159, 1134), map((float)pxY, 15, 0, 41, 533));
+Vector2D getPxlCoor(double pxX, double pxY) { //1134 553
+  return new Vector2D(map((float)pxX, 0, 30, 158, 971), map((float)pxY, 18, 3, 41, 451));
 }
 Vector2D getFeetCoor(Vector2D pxl) {
   return getFeetCoor(pxl.x, pxl.y);
