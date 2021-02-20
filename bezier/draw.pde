@@ -247,7 +247,7 @@ void draw() {
       strokeWeight(1);
       rect(0, 0, 300, 25);
       fill(0, 0, 0);
-      text("Points per curve (>=100 recommended): " + typing, 10, 17);
+      text("Points per curve (>=10 recommended): " + typing, 10, 17);
     }
     if (savedBox) {
       fill(255, 255, 255);
