@@ -1,7 +1,14 @@
 # Stuzzy's Scouter
+
+Provides a path and commands for the robot to follow autonomously. <br />
+Generates PID values and coordinate/rotation points for the robot to follow autonomously. <br />
+
+
+
 <br /><br />
 ![Recordit GIF](http://g.recordit.co/PGHzP9pbLD.gif)
 <br /><br /><br />
+
 
 ## Installation
 ### [Download Latest Release](https://github.com/Gregeg/Bezier-Curves-Processing/releases/)
