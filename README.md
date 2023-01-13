@@ -1,7 +1,7 @@
 # Stuzzy's Scouter
 
 Provides a path and commands for the robot to follow autonomously. <br />
-Generates PID values and coordinate/rotation points for the robot to follow autonomously. <br />
+Generates PID values and coordinate/rotation points for the robot to follow using a pure pursuit algorithm. <br />
 
 
 
